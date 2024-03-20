@@ -56,6 +56,7 @@
 	</repositories>
 
 	<dependencies>
+	
 		<!-- 표준프레임워크 실행환경 -->
 		<dependency>
 			<groupId>egovframework.rte</groupId>
