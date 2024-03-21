@@ -3,21 +3,25 @@ package servlet.impl;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.ibatis.session.SqlSession;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-@Repository("TestDAO")
-public class TestDAO extends EgovComAbstractDAO {
-	
+@Repository("MapDAO")
+public class MapDAO extends EgovComAbstractDAO {
+
 	@Autowired
 	private SqlSessionTemplate session;
 
 	public List<Map<String, Object>> getSdList() {
-		return session.selectList("test.sdList");
+		return session.selectList("map.sdList");
 	}
 	
+	public List<Map<String, Object>> getSggList(String sd) {
+		return session.selectList("map.sggList", sd);
+	}
 	
-	
+	public Map<String, Object> getExtent(int sd) {
+		return session.selectOne("map.getExtent", sd);
+	}
 }

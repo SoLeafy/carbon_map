@@ -57,6 +57,7 @@ $( document ).ready(function() {
 				'LAYERS' : 'cite:tl_sgg', // 3. 작업공간:레이어 명
 				'BBOX' : [1.3873946E7, 3906626.5, 1.4428045E7, 4670269.5], 
 				'SRS' : 'EPSG:3857', // SRID
+				'CQL_FILTER' : 'sgg_cd=11', 
 				'FORMAT' : 'image/png' // 포맷
 			},
 			serverType : 'geoserver',
@@ -73,6 +74,7 @@ $( document ).ready(function() {
 				'LAYERS' : 'cite:tl_sd', // 3. 작업공간:레이어 명
 				'BBOX' : [1.3873946E7, 3906626.5, 1.4428045E7, 4670269.5], 
 				'SRS' : 'EPSG:3857', // SRID
+				'CQL_FILTER' : 'sd_cd=11', 
 				'FORMAT' : 'image/png' // 포맷
 			},
 			serverType : 'geoserver',

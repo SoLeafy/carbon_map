@@ -1,6 +1,8 @@
 package servlet.controller;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Resource;
 
@@ -33,34 +35,11 @@ public class TestController {
 		return "main/testBackup";
 	}
 	
-	@RequestMapping(value = "/map.do", method = RequestMethod.GET)
-	public String map(Model model) {
-		
-		model.addAttribute("apiKey", apiInfo.getApiKey());
-		model.addAttribute("apiDomain", apiInfo.getApiDomain());
-		
-		return "main/map";
-	}
-	
 	@RequestMapping(value = "/txtInput.do", method = RequestMethod.GET)
 	public String txtInput() {
 		
 		return "main/txtInput";
 	}
 	
-	@RequestMapping(value = "/uploadTxt.do", method = RequestMethod.POST)
-	public String uploadTxt(@RequestParam("file") MultipartFile file) throws IOException {
-		
-		System.out.println(file.getContentType());
-		// System.out.println(file.getContentType().equals("text/plain"));
-		
-		if(file.getContentType().equals("text/plain")) {
-			System.out.println(file.getOriginalFilename());
-			System.out.println(file.getBytes());
-			return "redirect:/txtInput.do";
-		} else {
-			return "redirect:/txtInput.do";
-		}
-		
-	}
+	
 }
