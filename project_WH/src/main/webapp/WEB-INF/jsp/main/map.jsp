@@ -133,54 +133,64 @@ $( document ).ready(function() {
 		map.removeLayer(sggWms);
 		map.removeLayer(bjdWms);
 		
-		// 시도 코드에 해당하는 레이어 CQL_FILTER
-		sdWms = new ol.layer.Tile({
-			source : new ol.source.TileWMS({
-				url : 'http://localhost/geoserver/cite/wms?service=WMS', // 1. 레이어 URL
-				params : {
-					'VERSION' : '1.1.0', // 2. 버전
-					'LAYERS' : 'cite:tl_sd', // 3. 작업공간:레이어 명
-					'BBOX' : [1.3873946E7, 3906626.5, 1.4428045E7, 4670269.5], 
-					'SRS' : 'EPSG:3857', // SRID
-					'FORMAT' : 'image/png', // 포맷
-					'CQL_FILTER' : 'sd_cd=' + sd
-				},
-				serverType : 'geoserver',
-			}), 
-			opacity: 0.4
-		});
-		
-		// 시도 CQL_FILTER 레이어 추가
-		map.addLayer(sdWms);
-		
-		// 시도 선택 시 시군구 드롭다운 옵션 받아오기 (db)
-		$.ajax({
-			url: "./sggSelect.do",
-			type: "post",
-			dataType: "json",
-			data: {sd: sd},
-			success: function(data) {
-				let sggList = data.sggList;
-				let sdExtent = data.sdExtent;
-				map.getView().fit([sdExtent.xmin, sdExtent.ymin, sdExtent.xmax, sdExtent.ymax]); // xmin, ymin, xmax, ymax 순이었다
-				
-				sggDd.innerHTML = "";
-				
-				for(let i = 0; i < sggList.length;i++) {
-					sggOpt += "<option value=\'"+sggList[i].sgg_cd+"\'>"+sggList[i].sgg_nm+"</option>";
+		if(parseInt(sd) !== 0) {
+			// 시도 코드에 해당하는 레이어 CQL_FILTER
+			sdWms = new ol.layer.Tile({
+				source : new ol.source.TileWMS({
+					url : 'http://localhost/geoserver/cite/wms?service=WMS', // 1. 레이어 URL
+					params : {
+						'VERSION' : '1.1.0', // 2. 버전
+						'LAYERS' : 'cite:tl_sd', // 3. 작업공간:레이어 명
+						'BBOX' : [1.3873946E7, 3906626.5, 1.4428045E7, 4670269.5], 
+						'SRS' : 'EPSG:3857', // SRID
+						'FORMAT' : 'image/png', // 포맷
+						'CQL_FILTER' : 'sd_cd=' + sd
+					},
+					serverType : 'geoserver',
+				}), 
+				opacity: 0.4
+			});
+			
+			// 시도 CQL_FILTER 레이어 추가
+			map.addLayer(sdWms);
+			
+			// 시도 선택 시 시군구 드롭다운 옵션 받아오기 (db)
+			$.ajax({
+				url: "./sdSelect.do",
+				type: "post",
+				dataType: "json",
+				data: {sd: sd},
+				success: function(data) {
+					let sggList = data.sggList;
+					// OL) view.fit()을 위한 
+					let sdExtent = data.sdExtent;
+					console.log([sdExtent.xmin, sdExtent.ymin, sdExtent.xmax, sdExtent.ymax]);
+					map.getView().fit([sdExtent.xmin, sdExtent.ymin, sdExtent.xmax, sdExtent.ymax], {duration : 300}); // xmin, ymin, xmax, ymax 순이었다
+					
+					sggDd.innerHTML = "";
+					
+					for(let i = 0; i < sggList.length;i++) {
+						sggOpt += "<option value=\'"+sggList[i].sgg_cd+"\'>"+sggList[i].sgg_nm+"</option>";
+					}
+					
+					sggDd.innerHTML = sggOpt;
+				}, 
+				error: function(error) {
+					alert("통신실패: " + error);
 				}
-				
-				sggDd.innerHTML = sggOpt;
-			}, 
-			error: function(error) {
-				alert("통신실패: " + error);
-			}
-		});
+			});
+			
+		} else {
+			sggDd.innerHTML = `<option value="0">시/군/구 선택</option>`;
+		}
+		
 	});
 	
+	// 시군구 드롭다운 변경 시
 	$("#sgg").on("change", function() {
 		console.log($("#sgg option:checked").text());
 		let sgg = $("#sgg option:checked").val();
+		let sggDd = document.querySelector("#sgg");
 		
 		map.removeLayer(sggWms);
 		
@@ -202,9 +212,60 @@ $( document ).ready(function() {
 			});
 			
 			map.addLayer(sggWms);
+			
+			$.ajax({
+				url: "./sggSelect.do",
+				type: "post",
+				dataType: "json",
+				data: {sgg: sgg},
+				success: function(data) {
+					// 시군구에 맞추기
+					let sggExtent = data.sggExtent;
+					let sggExArr = [sggExtent.xmin, sggExtent.ymin, sggExtent.xmax, sggExtent.ymax];
+					console.log([sggExtent.xmin, sggExtent.ymin, sggExtent.xmax, sggExtent.ymax]);
+					console.log(sggExArr[2] === undefined);
+					if(!sggExArr.some(e => e === undefined)) {
+						map.getView().fit(sggExArr, {duration : 300});
+						//some으로 disabled 속성 주려했지만 아닌것같아서 제거
+						//console.log($("#sgg option[value*=\'"+sgg+"\']"));
+						//$("#sgg option[value*=\'"+sgg+"\']").prop('disabled',true);
+					}
+				},
+				error: function() {}
+				
+			})
 		}
 	})
 	
+	// 파일 업로드
+	$("#uploadBtn").click(function() {
+		alert("clicked!");
+		let formData = new FormData();
+		let inputFile = $("input[name='file']");
+		let files = inputFile[0].files;
+		console.log(files);
+		
+		for(let i = 0; i < files.length; i++) {
+			formData.append("upFile", files[i]);
+		}
+		console.log(formData);
+		
+		/* $.ajax({
+			url: "/uploadTxt.do", 
+			enctype: "multipart/form-data", 
+			type: "post", 
+			//dataType: "json", 
+			data: formData, 
+			processData: false, 
+			contentType: false, 
+			success: function(data) {
+				alert("통신 성공: " + data);
+			}, 
+			error: function(error) {
+				alert("통신 실패: " + error);
+			}
+		}); */
+	});
 	
 	
 	//map.addLayer(sdWms);
@@ -224,7 +285,6 @@ $( document ).ready(function() {
 		사이드바
 		</aside>
 		<main class="mainContainer">
-		${sdList }
 		<!-- 탄소지도 -->
 			<div id="map" class="map"></div>
 			<!-- 드롭다운 -->
@@ -247,10 +307,10 @@ $( document ).ready(function() {
 			<!-- </form> -->
 		<!-- 데이터 삽입 -->
 			<div>
-				<form id="uploadForm" action="./uploadTxt.do" method="post" name="txtForm" enctype="multipart/form-data">
+				<div id="uploadForm">
 					<input type="file" id="txtFile" name="file" accept="text/plain" placeholder="txt 파일 업로드">
-					<button>파일 업로드</button>
-				</form>
+					<button id="uploadBtn">파일 업로드</button>
+				</div>
 			</div>
 			<article>
 			</article>

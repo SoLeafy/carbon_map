@@ -42,9 +42,9 @@
 	<bean
 		class="org.springframework.web.multipart.commons.CommonsMultipartResolver" 
 		id="multipartResolver">
-		<property name="defaultEncoding" value="UTF-8"></property>
+		<!-- <property name="defaultEncoding" value="UTF-8"></property>
 		<property name="maxUploadSizePerFile" value="3010469199"></property>
-		<property name="maxUploadSize" value="4010469199"></property>
+		<property name="maxUploadSize" value="4010469199"></property> -->
 	</bean>
 	
 	<!-- <bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">

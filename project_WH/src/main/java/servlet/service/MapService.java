@@ -8,5 +8,6 @@ public interface MapService {
 	
 	List<Map<String, Object>> getSggList(String sd);
 	
-	Map<String, Object> getExtent(int sd);
+	Map<String, Object> getSdExtent(int sd);
+	Map<String, Object> getSggExtent(int sgg);
 }

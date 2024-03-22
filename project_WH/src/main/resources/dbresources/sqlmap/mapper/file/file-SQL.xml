@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="file">
+
+	<update id="cleanTable">
+		TRUNCATE TABLE "TB_CARBON_C5"
+	</update>
+	
+	<insert id="uploadFile" parameterType="map">
+		INSERT INTO "TB_CARBON_C5" (sggcd, bjdcd, usage) VALUES 
+		<foreach collection="list" item="item" separator=",">
+		(#{item.sggcd}, #{item.bjdcd}, #{item.usage}::INTEGER)
+		</foreach>
+	</insert>
+	
+</mapper>

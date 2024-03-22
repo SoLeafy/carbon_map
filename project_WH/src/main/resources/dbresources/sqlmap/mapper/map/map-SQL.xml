@@ -10,13 +10,22 @@
 		SELECT sgg_cd, sgg_nm FROM tl_sgg WHERE sgg_cd LIKE CONCAT(#{sd}, '%')
 	</select>
 	
-	<select id="getExtent" parameterType="int" resultType="map">
+	<select id="getSdExtent" parameterType="int" resultType="map">
 	   select 
 	        (select ST_XMax(geom) as xmax FROM tl_sd WHERE sd_cd = #{sd_cd}::varchar order by xmax desc limit 1)
 	        ,(select ST_YMax(geom) as ymax FROM tl_sd WHERE  sd_cd =#{sd_cd}::varchar order by ymax desc limit 1)
 	        ,(select  ST_XMin(geom) as xmin FROM tl_sd WHERE  sd_cd = #{sd_cd}::varchar order by xmin  limit 1)
 	        ,(select ST_YMin(geom) as ymin FROM tl_sd WHERE  sd_cd = #{sd_cd}::varchar order by ymin limit 1)
 	    from tl_sd limit 1
+	</select>
+	
+	<select id="getSggExtent" parameterType="int" resultType="map">
+	   select 
+	        (select ST_XMax(geom) as xmax FROM tl_sgg WHERE sgg_cd = #{sgg_cd}::varchar order by xmax desc limit 1)
+	        ,(select ST_YMax(geom) as ymax FROM tl_sgg WHERE  sgg_cd =#{sgg_cd}::varchar order by ymax desc limit 1)
+	        ,(select  ST_XMin(geom) as xmin FROM tl_sgg WHERE  sgg_cd = #{sgg_cd}::varchar order by xmin  limit 1)
+	        ,(select ST_YMin(geom) as ymin FROM tl_sgg WHERE  sgg_cd = #{sgg_cd}::varchar order by ymin limit 1)
+	    from tl_sgg limit 1
 	</select>
 	
 </mapper>
