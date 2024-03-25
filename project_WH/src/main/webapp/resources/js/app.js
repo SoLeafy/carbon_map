@@ -1,5 +1,27 @@
-$(function(){
-    console.log("app.js 연결");
-});
+/*let toastElList = [].slice.call(document.querySelectorAll('.toast'))
+let toastList = toastElList.map(function (toastEl) {
+  return new bootstrap.Toast(toastEl, option)
+})
+toastList.forEach(toast => toast.show());*/
+/*const toastTrigger = document.getElementById('liveToastBtn')
+const toastLiveExample = document.getElementById('liveToast')
 
-// api면 빼도 될것이고... controller에서 받으면 빼면 안될것같다.
+if (toastTrigger) {
+  const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample)
+  toastTrigger.addEventListener('click', () => {
+    toastBootstrap.show()
+  })
+}*/
+/*$(function() {
+	let toastBox = document.getElementById('toastBox');
+	let loadingMsg = '로딩 중';
+	let successMsg = '파일 업로드 성공';
+	let failMsg = '파일 업로드 실패';
+	
+	function showToast(msg) {
+		let toast = document.createElement('div');
+		toast.classList.add('toast');
+		toast.innerHTML = msg;
+		toastBox.appendChild(toast);
+	}
+});*/

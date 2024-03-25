@@ -71,10 +71,10 @@ public class FileServiceImpl extends EgovAbstractServiceImpl implements FileServ
 			if(list.size() > 0) {
 				//db저장
 				result = fileDAO.uploadFile(list);
-				System.out.println("저장 결과: " + result);
-				System.out.println("처리된 라인: " + processedLine);
+				//System.out.println("저장 결과: " + result);
+				//System.out.println("처리된 라인: " + processedLine);
 			}
 		}
-		return result;
+		return processedLine;
 	}
 }

@@ -9,44 +9,18 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 <script type="text/javascript" src="resources/js/ol.js"></script>
 <link rel="stylesheet" href="resources/css/ol.css" type="text/css">
+<link rel="stylesheet" href="resources/css/styles.css" type="text/css">
 <!-- <script type="text/javascript" src="resources/js/mapTest.js"></script> -->
 <!-- OpenLayer 링크 6.15.1 -->
 <!-- <script
    src="https://cdn.rawgit.com/openlayers/openlayers.github.io/master/en/v6.15.1/build/ol.js"></script>
 <link rel="stylesheet"
    href="https://cdn.jsdelivr.net/npm/ol@v6.15.1/ol.css"> -->
-
-<style type="text/css">
-.container {
-	/* max-width: 1000px; */
-	margin: 0 auto;
-	display: flex;
-	flex-direction: column;
-	min-height: 100vh;
-}
-.mycontainer {
-}
-aside {
-	width: 200px;
-	background-color: pink;
-}
-article {
-
-}
-.map {
-	height: 600px;
-	width: 80%;
-}
-#ddWrapper {
-	display: flex;
-}
-</style>
+<!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script> -->
+<!-- fontawesome -->
+<script src="https://kit.fontawesome.com/53f2b43024.js" crossorigin="anonymous"></script>
 <script type="text/javascript" src="resources/js/app.js"></script>
-<script type="text/javascript">
-$(function() {
-	
-})
-</script>
 <script type="text/javascript">
 // ready
 $( document ).ready(function() {
@@ -160,12 +134,13 @@ $( document ).ready(function() {
 				type: "post",
 				dataType: "json",
 				data: {sd: sd},
+				global: false, 
 				success: function(data) {
 					let sggList = data.sggList;
 					// OL) view.fit()을 위한 
 					let sdExtent = data.sdExtent;
 					console.log([sdExtent.xmin, sdExtent.ymin, sdExtent.xmax, sdExtent.ymax]);
-					map.getView().fit([sdExtent.xmin, sdExtent.ymin, sdExtent.xmax, sdExtent.ymax], {duration : 300}); // xmin, ymin, xmax, ymax 순이었다
+					map.getView().fit([sdExtent.xmin, sdExtent.ymin, sdExtent.xmax, sdExtent.ymax], {duration : 500}); // xmin, ymin, xmax, ymax 순이었다
 					
 					sggDd.innerHTML = "";
 					
@@ -218,6 +193,7 @@ $( document ).ready(function() {
 				type: "post",
 				dataType: "json",
 				data: {sgg: sgg},
+				global: false, 
 				success: function(data) {
 					// 시군구에 맞추기
 					let sggExtent = data.sggExtent;
@@ -225,7 +201,7 @@ $( document ).ready(function() {
 					console.log([sggExtent.xmin, sggExtent.ymin, sggExtent.xmax, sggExtent.ymax]);
 					console.log(sggExArr[2] === undefined);
 					if(!sggExArr.some(e => e === undefined)) {
-						map.getView().fit(sggExArr, {duration : 300});
+						map.getView().fit(sggExArr, {duration : 500});
 						//some으로 disabled 속성 주려했지만 아닌것같아서 제거
 						//console.log($("#sgg option[value*=\'"+sgg+"\']"));
 						//$("#sgg option[value*=\'"+sgg+"\']").prop('disabled',true);
@@ -237,34 +213,98 @@ $( document ).ready(function() {
 		}
 	})
 	
-	// 파일 업로드
-	$("#uploadBtn").click(function() {
-		alert("clicked!");
-		let formData = new FormData();
-		let inputFile = $("input[name='file']");
-		let files = inputFile[0].files;
-		console.log(files);
+	// 토스트
+	let toastBox = document.getElementById('toastBox');
+	//let loadingMsg = '로딩 중';
+	let successMsg = '<i class="fa-solid fa-circle-check"></i> 파일 업로드 성공';
+	let failMsg = '<i class="fa-solid fa-circle-xmark"></i> 파일 업로드 실패';
+	let loadingToast = $("#loadingToast");
+	loadingToast.hide();
+	
+	function showResultToast(msg) {
+		let toast = document.createElement('div');
+		toast.classList.add('toast');
+		toast.innerHTML = msg;
+		toastBox.appendChild(toast);
 		
-		for(let i = 0; i < files.length; i++) {
-			formData.append("upFile", files[i]);
+		if(msg.includes('실패')) {
+			toast.classList.add('fail');
 		}
-		console.log(formData);
+		if(msg.includes('성공')) {
+			toast.classList.add('success');
+		}
 		
-		/* $.ajax({
-			url: "/uploadTxt.do", 
-			enctype: "multipart/form-data", 
-			type: "post", 
-			//dataType: "json", 
-			data: formData, 
-			processData: false, 
-			contentType: false, 
-			success: function(data) {
-				alert("통신 성공: " + data);
-			}, 
-			error: function(error) {
-				alert("통신 실패: " + error);
-			}
-		}); */
+		setTimeout(() => {
+			toast.remove();
+		}, 3000);
+	}
+	
+	$(document).ajaxStart(function () {
+      console.log("ajax start");
+      /* let toastElList = [].slice.call(document.querySelectorAll('.toast'))
+      let toastList = toastElList.map(function (toastEl) {
+        return new bootstrap.Toast(toastEl)
+      })
+      toastList.forEach(toast => toast.show()); */
+      loadingToast.show();
+   });
+   
+  /*  $(document).ajaxStop(function () {
+      alert("ajax stop");
+   }); */
+	
+	// 파일 업로드
+	$("#uploadBtn").on("click", function() {
+		//alert("clicked!");
+		let fileName = $('#file').val();
+		let extension = fileName.substring(fileName.lastIndexOf('.') + 1).toLowerCase();
+		
+		/* progress 정보 */
+		/* let bar = $('.bar');
+		let percent = $('.percent');
+		let status = $('#status'); */
+		
+		if (extension == 'txt') {
+			$.ajax({
+				/* xhr: function() {
+					let xhr = new window.XMLHttpRequest();
+					xhr.upload.addEventListener("progress", function(event) {
+						if (event.lengthComputable) {
+							let percentComplete = Math.floor((event.loaded/event.total) * 100) ;
+							//percentComplete = parseInt(percentComplete * 100);
+							let percentVal = percentComplete + '%';
+							//$('#progressbar').html(percentComplete + '%');
+							//$('#progressbar').width(percentComplete + '%');
+							bar.width(percentVal);
+							percent.html(percentVal);
+						}
+					}, false);
+					return xhr;
+				}, */
+				url: "/uploadTxt.do", 
+				enctype: "multipart/form-data", 
+				type: "post", 
+				//dataType: "json", 
+				data: new FormData($('#uploadForm')[0]), 
+				cache: false, 
+				processData: false, 
+				contentType: false, 
+				success: function(data) {
+					let result = JSON.parse(data);
+					console.log(result);
+					showResultToast(successMsg + '(' + result.result + ' lines)<br>경과 시간: ' + result.timeElapsed + '초');
+					loadingToast.remove();
+				}, 
+				error: function(error) {
+					alert("통신 실패: " + error);
+					showResultToast(failMsg);
+					loadingToast.remove();
+				}
+			});
+		} else {
+			alert("지원하지 않는 파일");
+		}
+		
 	});
 	
 	
@@ -279,12 +319,16 @@ $( document ).ready(function() {
 	<header>
 	헤더
 	</header>
-	<div class="container">
+	<div class="container1">
 		<div class="mycontainer">
 		<aside class="sidebar">
 		사이드바
 		</aside>
 		<main class="mainContainer">
+		<!-- 토스트 -->
+		<div id="toastBox">
+			<div class="toast" id="loadingToast"><i class="fa-solid fa-circle-arrow-up"></i> 업로드 진행 중...</div>
+		</div>
 		<!-- 탄소지도 -->
 			<div id="map" class="map"></div>
 			<!-- 드롭다운 -->
@@ -307,15 +351,35 @@ $( document ).ready(function() {
 			<!-- </form> -->
 		<!-- 데이터 삽입 -->
 			<div>
-				<div id="uploadForm">
-					<input type="file" id="txtFile" name="file" accept="text/plain" placeholder="txt 파일 업로드">
-					<button id="uploadBtn">파일 업로드</button>
-				</div>
+				<form id="uploadForm">
+					<input type="file" id="file" name="file" accept="text/plain" placeholder="txt 파일 업로드" required>
+					<button type="button" id="uploadBtn">파일 업로드</button>
+				</form>
 			</div>
 			<article>
 			</article>
 		</main>
 		</div>
+		
+		
+		<!-- progress Modal -->
+		<!-- <div class="modal fade" id="pleaseWaitDialog" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+		    <div class="modal-dialog">
+		        <div class="modal-content">
+		            <div class="modal-header">
+		                <h3>Upload processing...</h3>
+		            </div>
+		            <div class="modal-body">
+		                 progress , bar, percent를 표시할 div 생성한다. 
+		                <div class="progress">
+		                    <div class="bar"></div>
+		                    <div class="percent">0%</div>
+		                </div>
+		                <div id="status"></div>
+		            </div>
+		        </div>
+		    </div>
+		</div> -->
 	</div>
 	<footer>
 	푸터

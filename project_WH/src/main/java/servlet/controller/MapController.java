@@ -1,11 +1,13 @@
 package servlet.controller;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
 
+import org.apache.commons.collections.map.HashedMap;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -42,6 +44,24 @@ public class MapController {
 		
 		List<Map<String, Object>> sdList = mapService.getSdList();
 		//List<Map<String, Object>> sggList = mapService.getSggList();
+		
+//		// 
+//	      //최대값, 최소값, 범례   
+//	      Map<String, BigDecimal> data = mapService.bum(sggcd);
+//	      
+//	      BigDecimal max = new BigDecimal(String.valueOf(data.get("max")));
+//	      BigDecimal min = new BigDecimal(String.valueOf(data.get("min")));
+//	      BigDecimal interval = new BigDecimal(String.valueOf(data.get("interval")));
+//	      
+//	      Map<String, BigDecimal> legend = new HashedMap();
+//	      
+//	      for (int i = 0; i < 5; i++) {
+//	            BigDecimal rangeStart = data.get("max").add(interval.multiply(new BigDecimal(i)));
+//	            BigDecimal rangeEnd = data.get("min").add(interval.multiply(new BigDecimal(i + 1)));
+//	          legend.put(i + "start", rangeStart);
+//	          legend.put(i + "end", rangeEnd);
+//	      };
+		
 		
 		model.addAttribute("apiKey", apiInfo.getApiKey());
 		model.addAttribute("apiDomain", apiInfo.getApiDomain());
@@ -82,8 +102,9 @@ public class MapController {
 	// 파일 업로드
 	@ResponseBody
 	@RequestMapping(value = "/uploadTxt.do", method = RequestMethod.POST)
-	public String uploadTxt(MultipartHttpServletRequest request) throws IOException {
-		MultipartFile file = request.getFile("file");
+	//public String uploadTxt(MultipartHttpServletRequest request) throws IOException {
+	public String uploadTxt(@RequestParam("file") MultipartFile file) throws IOException {
+		//System.out.println(file);
 		int result = 0;
 		
 		if(Util.isValidTxtFile(file)) {
@@ -92,21 +113,21 @@ public class MapController {
 			System.out.println(file.getContentType());
 			System.out.println(file.getOriginalFilename());
 			
-			int startTime = (int) System.currentTimeMillis();
-			//result = fileService.uploadFile(file);
-			int endTime = (int) System.currentTimeMillis();
-			int processingTime = (endTime - startTime)/60000;
+			long startTime = System.currentTimeMillis();
+			result = fileService.uploadFile(file);
+			long endTime = System.currentTimeMillis();
+			long timeElapsed = endTime - startTime;
 			//System.out.println("처리 시간(분): " + (processingTime));
 			
 			JSONObject json = new JSONObject();
 			json.put("result", result);
-			json.put("processingTime", processingTime);
+			double processingTime = (double) timeElapsed / 1000;
+			json.put("timeElapsed", processingTime);
 			
-			//return json.toString();
+			return json.toString();
 			
 		} else {
-			//return String.valueOf(result);
+			return String.valueOf(result);
 		}
-		return "ghj";
 	}
 }
