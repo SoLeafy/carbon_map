@@ -13,4 +13,8 @@
 		</foreach>
 	</insert>
 	
+	<update id="refreshMv">
+		REFRESH MATERIALIZED VIEW mvdtbjd
+	</update>
+	
 </mapper>

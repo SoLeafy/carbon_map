@@ -11,15 +11,15 @@
 .mycontainer {
 }
 aside {
-	width: 200px;
+	width: 250px;
 	background-color: pink;
 }
 article {
 
 }
 .map {
-	height: 600px;
-	width: 80%;
+	height: 100vh;
+	width: 100%;
 }
 #ddWrapper {
 	display: flex;

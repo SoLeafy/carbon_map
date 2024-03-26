@@ -16,14 +16,60 @@
    src="https://cdn.rawgit.com/openlayers/openlayers.github.io/master/en/v6.15.1/build/ol.js"></script>
 <link rel="stylesheet"
    href="https://cdn.jsdelivr.net/npm/ol@v6.15.1/ol.css"> -->
-<!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script> -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 <!-- fontawesome -->
 <script src="https://kit.fontawesome.com/53f2b43024.js" crossorigin="anonymous"></script>
 <script type="text/javascript" src="resources/js/app.js"></script>
+<style>
+header{
+	height: 60px;
+}
+.container1 {
+	display: flex;
+	width: 100%;
+}
+.mycontainer {
+	display: flex;
+	width: 100%;
+}
+.mainContainer {
+	width: 100%;
+}
+#ddWrapper {
+	display: flex;
+	flex-direction: column;
+}
+</style>
 <script type="text/javascript">
 // ready
 $( document ).ready(function() {
+	// 토스트
+	let toastBox = document.getElementById('toastBox');
+	//let loadingMsg = '로딩 중';
+	let successMsg = '<i class="fa-solid fa-circle-check"></i> 파일 업로드 성공';
+	let failMsg = '<i class="fa-solid fa-circle-xmark"></i> 파일 업로드 실패';
+	let loadingToast = $("#loadingToast");
+	loadingToast.hide();
+	
+	function showResultToast(msg) {
+		let toast = document.createElement('div');
+		toast.classList.add('toast');
+		toast.innerHTML = msg;
+		toastBox.appendChild(toast);
+		
+		if(msg.includes('실패')) {
+			toast.classList.add('fail');
+		}
+		if(msg.includes('성공')) {
+			toast.classList.add('success');
+		}
+		
+		setTimeout(() => {
+			toast.remove();
+		}, 3000);
+	}
+	
 	// 맵 객체 생성
 	let map = new ol.Map({ // OpenLayer의 맵 객체를 생성한다.
 	    target: 'map', // 맵 객체를 연결하기 위한 target으로 <div>의 id값을 지정해준다.
@@ -43,7 +89,7 @@ $( document ).ready(function() {
 	});
 	
 	// 시도 타일 레이어
-	var sdWms = new ol.layer.Tile({
+	let sdWms = new ol.layer.Tile({
 		source : new ol.source.TileWMS({
 			url : 'http://localhost/geoserver/cite/wms?service=WMS', // 1. 레이어 URL
 			params : {
@@ -60,7 +106,7 @@ $( document ).ready(function() {
 	});
 	
 	// 시군구 타일 레이어
-	var sggWms = new ol.layer.Tile({
+	let sggWms = new ol.layer.Tile({
 		source : new ol.source.TileWMS({
 			url : 'http://localhost/geoserver/cite/wms?service=WMS', // 1. 레이어 URL
 			params : {
@@ -77,7 +123,7 @@ $( document ).ready(function() {
 	});
 	
 	// 법정동 타일 레이어
-	var bjdWms = new ol.layer.Tile({
+	let bjdWms = new ol.layer.Tile({
 		source : new ol.source.TileWMS({
 			url : 'http://localhost/geoserver/cite/wms?service=WMS', // 1. 레이어 URL
 			params : {
@@ -92,6 +138,9 @@ $( document ).ready(function() {
 		}),
 		opacity: 0.8
 	});
+	
+	let dtSggLayer;
+	let dtSdLayer;
 	
 	
 	// 시도 드롭다운 변화 -----------------------------------------------------------------------
@@ -126,7 +175,7 @@ $( document ).ready(function() {
 			});
 			
 			// 시도 CQL_FILTER 레이어 추가
-			map.addLayer(sdWms);
+			// map.addLayer(sdWms); // 데이터 레이어로 하려고
 			
 			// 시도 선택 시 시군구 드롭다운 옵션 받아오기 (db)
 			$.ajax({
@@ -186,7 +235,7 @@ $( document ).ready(function() {
 				opacity: 0.6
 			});
 			
-			map.addLayer(sggWms);
+			//map.addLayer(sggWms); // 데이터 레이어로 깔려고 주석
 			
 			$.ajax({
 				url: "./sggSelect.do",
@@ -200,6 +249,7 @@ $( document ).ready(function() {
 					let sggExArr = [sggExtent.xmin, sggExtent.ymin, sggExtent.xmax, sggExtent.ymax];
 					console.log([sggExtent.xmin, sggExtent.ymin, sggExtent.xmax, sggExtent.ymax]);
 					console.log(sggExArr[2] === undefined);
+					// map.getView().setCenter(pt); <- 이걸로 센터 이동
 					if(!sggExArr.some(e => e === undefined)) {
 						map.getView().fit(sggExArr, {duration : 500});
 						//some으로 disabled 속성 주려했지만 아닌것같아서 제거
@@ -213,31 +263,66 @@ $( document ).ready(function() {
 		}
 	})
 	
-	// 토스트
-	let toastBox = document.getElementById('toastBox');
-	//let loadingMsg = '로딩 중';
-	let successMsg = '<i class="fa-solid fa-circle-check"></i> 파일 업로드 성공';
-	let failMsg = '<i class="fa-solid fa-circle-xmark"></i> 파일 업로드 실패';
-	let loadingToast = $("#loadingToast");
-	loadingToast.hide();
+	// 레이어 검색 ----------------------------------------------------------------------
+	$("#searchBtn").on('click', function() {
+		//map.getLayers()
+		
+		if ($("#sgg option:checked").val() != 0) {
+			//console.log($("#sgg option:checked").val());
+			map.removeLayer(dtSdLayer);
+			map.removeLayer(dtSggLayer);
+			
+			let sgg = $("#sgg option:checked").val(); // 시군구 코드
+			
+			dtSggLayer = new ol.layer.Tile({
+				source : new ol.source.TileWMS({
+					url : 'http://172.30.1.65:8080/geoserver/ljs/wms?service=WMS', // 1. 레이어 URL
+					params : {
+						'VERSION' : '1.1.0', // 2. 버전
+						'LAYERS' : 'ljs:mvdtbjd', // 3. 작업공간:레이어 명
+						'BBOX' : [1.3873946E7, 3906626.5, 1.4428045E7, 4670269.5], 
+						'SRS' : 'EPSG:3857', // SRID
+						'FORMAT' : 'image/png', // 포맷
+						'CQL_FILTER' : "bjdcd LIKE '" + sgg + "%'"
+					},
+					serverType : 'geoserver',
+				}),
+				opacity: 0.6
+			});
+			
+			map.addLayer(dtSggLayer);
+		
+		} else if ($("#sd option:checked").val() != 0) {
+			map.removeLayer(dtSdLayer);
+			map.removeLayer(dtSggLayer);
+			
+			let sd = $("#sd option:checked").val(); // 시도 코드
+			 
+			dtSdLayer = new ol.layer.Tile({
+				source : new ol.source.TileWMS({
+					url : 'http://172.30.1.65:8080/geoserver/ljs/wms?service=WMS', // 1. 레이어 URL
+					params : {
+						'VERSION' : '1.1.0', // 2. 버전
+						'LAYERS' : 'ljs:mvdtbjd', // 3. 작업공간:레이어 명
+						'BBOX' : [1.3873946E7, 3906626.5, 1.4428045E7, 4670269.5], 
+						'SRS' : 'EPSG:3857', // SRID
+						'FORMAT' : 'image/png', // 포맷
+						'CQL_FILTER' : "bjdcd LIKE '" + sd + "%'"
+					},
+					serverType : 'geoserver',
+				}),
+				opacity: 0.6
+			});
+			
+			map.addLayer(dtSdLayer);
+		} else {
+			alert("지역 정보를 선택하세요.");
+		}
+		
+	});
 	
-	function showResultToast(msg) {
-		let toast = document.createElement('div');
-		toast.classList.add('toast');
-		toast.innerHTML = msg;
-		toastBox.appendChild(toast);
-		
-		if(msg.includes('실패')) {
-			toast.classList.add('fail');
-		}
-		if(msg.includes('성공')) {
-			toast.classList.add('success');
-		}
-		
-		setTimeout(() => {
-			toast.remove();
-		}, 3000);
-	}
+	
+	
 	
 	$(document).ajaxStart(function () {
       console.log("ajax start");
@@ -301,6 +386,8 @@ $( document ).ready(function() {
 					loadingToast.remove();
 				}
 			});
+		} else if (!extension) {
+			return false; // 파일이 비어있다든지..?
 		} else {
 			alert("지원하지 않는 파일");
 		}
@@ -321,34 +408,31 @@ $( document ).ready(function() {
 	</header>
 	<div class="container1">
 		<div class="mycontainer">
-		<aside class="sidebar">
-		사이드바
-		</aside>
-		<main class="mainContainer">
 		<!-- 토스트 -->
 		<div id="toastBox">
 			<div class="toast" id="loadingToast"><i class="fa-solid fa-circle-arrow-up"></i> 업로드 진행 중...</div>
 		</div>
-		<!-- 탄소지도 -->
-			<div id="map" class="map"></div>
-			<!-- 드롭다운 -->
-			<!-- <form name="locForm" action="./sggSelect.do"> -->
+		<aside class="sidebar">
+		사이드바
+		<!-- 드롭다운 -->
 			<div id="ddWrapper">
-			<div id="sdDropdown">
-				<select name="sd" id="sd">
-					<option value="0">시/도 선택</option>
-					<c:forEach items="${sdList }" var="sd">
-					<option value="${sd.sd_cd }">${sd.sd_nm }</option>
-					</c:forEach>
-				</select>
+				<div id="sdDropdown">
+					<select name="sd" id="sd">
+						<option value="0">시/도 선택</option>
+						<c:forEach items="${sdList }" var="sd">
+						<option value="${sd.sd_cd }">${sd.sd_nm }</option>
+						</c:forEach>
+					</select>
+				</div>
+				<div id="sggDropdown">
+					<select name="sgg" id="sgg">
+						<option value="0">시/군/구 선택</option>
+					</select>
+				</div>
+				<div>
+					<button id="searchBtn">검색</button>
+				</div>
 			</div>
-			<div id="sggDropdown">
-				<select name="sgg" id="sgg">
-					<option value="0">시/군/구 선택</option>
-				</select>
-			</div>
-			</div>
-			<!-- </form> -->
 		<!-- 데이터 삽입 -->
 			<div>
 				<form id="uploadForm">
@@ -356,6 +440,10 @@ $( document ).ready(function() {
 					<button type="button" id="uploadBtn">파일 업로드</button>
 				</form>
 			</div>
+		</aside>
+		<main class="mainContainer">
+			<!-- 탄소지도 -->
+			<div id="map" class="map"></div>
 			<article>
 			</article>
 		</main>
