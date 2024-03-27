@@ -24,6 +24,10 @@ public class FileDAO {
 		session.update("file.refreshMv");
 	}
 	
+	public void refreshMvSgg() {
+		session.update("file.refreshMvSgg");
+	}
+	
 	
 
 }

@@ -75,6 +75,7 @@ public class FileServiceImpl extends EgovAbstractServiceImpl implements FileServ
 				//System.out.println("처리된 라인: " + processedLine);
 			}
 			fileDAO.refreshMv();
+			fileDAO.refreshMvSgg();
 		}
 		return processedLine;
 	}
