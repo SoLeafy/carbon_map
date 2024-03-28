@@ -40,47 +40,6 @@ header{
 	display: flex;
 	flex-direction: column;
 }
-.ol-popup {
-  position: absolute;
-  background-color: white;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
-  padding: 15px;
-  border-radius: 10px;
-  border: 1px solid #cccccc;
-  bottom: 12px;
-  left: -50px;
-  min-width: 200px;
-}
-.ol-popup:after, .ol-popup:before {
-  top: 100%;
-  border: solid transparent;
-  content: " ";
-  height: 0;
-  width: 0;
-  position: absolute;
-  pointer-events: none;
-}
-.ol-popup:after {
-  border-top-color: white;
-  border-width: 10px;
-  left: 48px;
-  margin-left: -10px;
-}
-.ol-popup:before {
-  border-top-color: #cccccc;
-  border-width: 11px;
-  left: 48px;
-  margin-left: -11px;
-}
-.ol-popup-closer {
-  text-decoration: none;
-  position: absolute;
-  top: 2px;
-  right: 8px;
-}
-.ol-popup-closer:after {
-  content: "✖";
-}
 </style>
 <script type="text/javascript">
 // ready --------------------------------------------------------------------
@@ -134,6 +93,57 @@ $( document ).ready(function() {
 	    view: view,
 	});
 	
+	// 시도 타일 레이어
+	let sdWms = new ol.layer.Tile({
+		source : new ol.source.TileWMS({
+			url : 'http://localhost/geoserver/cite/wms?service=WMS', // 1. 레이어 URL
+			params : {
+				'VERSION' : '1.1.0', // 2. 버전
+				'LAYERS' : 'cite:tl_sd', // 3. 작업공간:레이어 명
+				'BBOX' : [1.3873946E7, 3906626.5, 1.4428045E7, 4670269.5], 
+				'SRS' : 'EPSG:3857', // SRID
+				'FORMAT' : 'image/png', // 포맷
+				'CQL_FILTER' : 'sd_cd=11'
+			},
+			serverType : 'geoserver',
+		}), 
+		opacity: 0.4
+	});
+	
+	// 시군구 타일 레이어
+	let sggWms = new ol.layer.Tile({
+		source : new ol.source.TileWMS({
+			url : 'http://localhost/geoserver/cite/wms?service=WMS', // 1. 레이어 URL
+			params : {
+				'VERSION' : '1.1.0', // 2. 버전
+				'LAYERS' : 'cite:tl_sgg', // 3. 작업공간:레이어 명
+				'BBOX' : [1.3873946E7, 3906626.5, 1.4428045E7, 4670269.5], 
+				'SRS' : 'EPSG:3857', // SRID
+				'FORMAT' : 'image/png', // 포맷
+				'CQL_FILTER' : 'sgg_cd=11620'
+			},
+			serverType : 'geoserver',
+		}),
+		opacity: 0.6
+	});
+	
+	// 법정동 타일 레이어
+	let bjdWms = new ol.layer.Tile({
+		source : new ol.source.TileWMS({
+			url : 'http://localhost/geoserver/cite/wms?service=WMS', // 1. 레이어 URL
+			params : {
+				'VERSION' : '1.1.0', // 2. 버전
+				'LAYERS' : 'cite:tl_bjd', // 3. 작업공간:레이어 명
+				'BBOX' : [1.3873946E7, 3906626.5, 1.4428045E7, 4670269.5], 
+				'SRS' : 'EPSG:3857', // SRID
+				'FORMAT' : 'image/png', // 포맷
+				'CQL_FILTER' : 'bjd_cd=11620101'
+			},
+			serverType : 'geoserver',
+		}),
+		opacity: 0.8
+	});
+	
 	let dtSggLayer = new ol.layer.Tile({
 		source : new ol.source.TileWMS({
 			url : 'http://172.30.1.65:8080/geoserver/ljs/wms?service=WMS', // 1. 레이어 URL
@@ -163,7 +173,6 @@ $( document ).ready(function() {
 			},
 			serverType : 'geoserver',
 		}),
-		properties: { name : 'sd' }, 
 		opacity: 0.6
 	});
 	
@@ -176,7 +185,31 @@ $( document ).ready(function() {
 		
 		let sgg = $("#sgg option:checked").val(); // 시군구 코드
 		
+		// 드롭다운 변경 시 레이어 모두 제거
+		map.removeLayer(sdWms);
+		map.removeLayer(sggWms);
+		map.removeLayer(bjdWms);
+		
 		if(parseInt(sd) !== 0) {
+			// 시도 코드에 해당하는 레이어 CQL_FILTER
+			sdWms = new ol.layer.Tile({
+				source : new ol.source.TileWMS({
+					url : 'http://localhost/geoserver/cite/wms?service=WMS', // 1. 레이어 URL
+					params : {
+						'VERSION' : '1.1.0', // 2. 버전
+						'LAYERS' : 'cite:tl_sd', // 3. 작업공간:레이어 명
+						'BBOX' : [1.3873946E7, 3906626.5, 1.4428045E7, 4670269.5], 
+						'SRS' : 'EPSG:3857', // SRID
+						'FORMAT' : 'image/png', // 포맷
+						'CQL_FILTER' : 'sd_cd=' + sd
+					},
+					serverType : 'geoserver',
+				}), 
+				opacity: 0.4
+			});
+			
+			// 시도 CQL_FILTER 레이어 추가
+			// map.addLayer(sdWms); // 데이터 레이어로 하려고
 			
 			// 시도 선택 시 시군구 드롭다운 옵션 받아오기 (db)
 			$.ajax({
@@ -217,7 +250,26 @@ $( document ).ready(function() {
 		let sgg = $("#sgg option:checked").val();
 		let sggDd = document.querySelector("#sgg");
 		
+		map.removeLayer(sggWms);
+		
 		if(Number(sgg) !== 0) {
+			sggWms = new ol.layer.Tile({
+				source : new ol.source.TileWMS({
+					url : 'http://localhost/geoserver/cite/wms?service=WMS', // 1. 레이어 URL
+					params : {
+						'VERSION' : '1.1.0', // 2. 버전
+						'LAYERS' : 'cite:tl_sgg', // 3. 작업공간:레이어 명
+						'BBOX' : [1.3873946E7, 3906626.5, 1.4428045E7, 4670269.5], 
+						'SRS' : 'EPSG:3857', // SRID
+						'FORMAT' : 'image/png', // 포맷
+						'CQL_FILTER' : 'sgg_cd='+sgg
+					},
+					serverType : 'geoserver',
+				}),
+				opacity: 0.6
+			});
+			
+			//map.addLayer(sggWms); // 데이터 레이어로 깔려고 주석
 			
 			$.ajax({
 				url: "./sggSelect.do",
@@ -247,14 +299,7 @@ $( document ).ready(function() {
 	
 	// 레이어 검색 ----------------------------------------------------------------------
 	$("#searchBtn").on('click', function() {
-		
-		let legendOpt = $('#legend option:checked').val();
-		
-		if(legendOpt == 1) { // 등간격
-			
-		} else if (legendOpt == 2) { // 내추럴 브레이크
-			
-		}
+		//map.getLayers()
 		
 		if ($("#sgg option:checked").val() != 0) {
 			//console.log($("#sgg option:checked").val());
@@ -282,33 +327,48 @@ $( document ).ready(function() {
 		
 	});
 	
-
-	const container = document.getElementById('popup');
-	const content = document.getElementById('popup-content');
-	const closer = document.getElementById('popup-closer');
-	
-	const overlay = new ol.Overlay({
-		element: container,
-		autoPan: {
-			animation: {
-				duration: 250,
-			},
-		},
-	});
-	
-	closer.onclick = function() {
-		overlay.setPosition(undefined);
-		closer.blur();
-		return false;
-	};
-	
-	
 	// wms GetFeatureInfo 해보기 -----------------------------------------------------
+	/* map.on('singleclick', function(evt){
+		document.getElementById('info').innerHTML = '';
+		let viewResolution = view.getResolution();
+		//let url = dtSdLayer.getFeatureInfoUrl();
+		console.log(dtSdLayer.getSource());
+	}); */
+	
 	// 클릭한 지점에 Overlay
 	map.on('singleclick', async function(e) { // async 없으면 await 때문에 안됨... (블로그에는 화살표함수로 async 없던데 왤까)
 		map.getOverlays().clear();
 		
-		const coordinate = e.coordinate; // 클릭한 지도 좌표
+		const popup = document.getElementById('map-popup');
+		let container = document.createElement('div');
+		container.classList.add('ol-popup-custom');
+		
+		let bjdname = document.createElement('div');
+		let totusage = document.createElement('div');
+		bjdname.classList.add('popup-content');
+		bjdname.classList.add('bjdname');
+		totusage.classList.add('popup-content');
+		totusage.classList.add('totusage');
+		
+		container.appendChild(bjdname);
+		container.appendChild(totusage);
+		
+		document.body.appendChild(container);
+		
+		const overlay = new ol.Overlay({
+			id: 'popup',
+			element: container,
+			positioning: 'center-center',
+			autoPan: {
+				animation: {
+					duration: 250
+				}
+			}
+		});
+		
+		
+		map.addOverlay(overlay);
+		//overlay.setPosition(coordinate);
 		
 		// WMS properties의 name이 sgg인 레이어 추출
 		const wmsLayer = map.getAllLayers().filter(layer => layer.get('name') === 'sgg')[0];
@@ -342,9 +402,13 @@ $( document ).ready(function() {
 						
 						// 생성한 Feature로 VectorSource 생성
 						const vector = new ol.source.Vector({ features: [feature] });
-						console.log(typeof feature.get('totusage'));
+						//console.log(feature.get('bjd_nm'));
+						console.log(feature.get('totusage'));
 						
-						content.innerHTML = '<p style="font-weight: bold">' + feature.get('bjd_nm') + '</p>사용량: <code>' + feature.get('totusage').toLocaleString('ko-KR') + 'kWh</code>';
+						let coordinate = e.coordinate; // 클릭한 지도 좌표
+						bjdname.innerHTML = '<span>' + feature.get('bjd_nm') + '</span>';
+						totusage.innerHTML = '<span>' + feature.get('totusage') + '</span>';
+						
 						
 						//overlay.setPosition(ol.extent.getCenter(vector.getExtent()));
 						overlay.setPosition(coordinate);
@@ -355,7 +419,34 @@ $( document ).ready(function() {
 			}
 		}
 		
+		
+		
+		/* let container = document.createElement('div');
+		container.classList.add('ol-popup-custom');
+		
+		let content = document.createElement('div');
+		content.classList.add('popup-content');
+		
+		container.appendChild(content);
+		document.body.appendChild(container);
+		
+		let coordinate = evt.coordinate; // 클릭한 지도 좌표
+		content.innerHTML = '<span>' + '한글입니다.' + '</span>';
+		
+		
+		
+		const overlay = new ol.Overlay({
+			id: 'popup',
+			element: container,
+			positioning: 'center-center',
+			autoPan: {
+				animation: {
+					duration: 250
+				}
+			}
+		});
 		map.addOverlay(overlay);
+		overlay.setPosition(coordinate); */
 	});
 	
 	
@@ -430,6 +521,11 @@ $( document ).ready(function() {
 		
 	});
 	
+	
+	//map.addLayer(sdWms);
+	//map.addLayer(sggWms); // 맵 객체에 레이어를 추가
+	//map.addLayer(bjdWms); // 맵에 법정동 레이어 추가
+	
 });
 </script>
 </head>
@@ -479,19 +575,37 @@ $( document ).ready(function() {
 			</div>
 		</aside>
 		<main class="mainContainer">
-			<div id="popup" class="ol-popup">
-		      <a href="#" id="popup-closer" class="ol-popup-closer"></a>
-		      <div id="popup-content"></div>
-		    </div>
+			<div id="map-popup"></div>
+			<!-- <div id="info">&nbsp;</div> -->
 			<!-- 탄소지도 -->
 			<div id="map" class="map"></div>
 			<article>
 			</article>
 		</main>
 		</div>
+		
+		
+		<!-- progress Modal -->
+		<!-- <div class="modal fade" id="pleaseWaitDialog" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+		    <div class="modal-dialog">
+		        <div class="modal-content">
+		            <div class="modal-header">
+		                <h3>Upload processing...</h3>
+		            </div>
+		            <div class="modal-body">
+		                 progress , bar, percent를 표시할 div 생성한다. 
+		                <div class="progress">
+		                    <div class="bar"></div>
+		                    <div class="percent">0%</div>
+		                </div>
+		                <div id="status"></div>
+		            </div>
+		        </div>
+		    </div>
+		</div> -->
 	</div>
-	<!-- <footer>
+	<footer>
 	푸터
-	</footer> -->
+	</footer>
 </body>
 </html>

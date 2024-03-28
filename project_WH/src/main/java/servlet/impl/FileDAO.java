@@ -20,6 +20,14 @@ public class FileDAO {
 		return session.insert("file.uploadFile", list);
 	}
 	
+	public void refreshMv() {
+		session.update("file.refreshMv");
+	}
+	
+	public void refreshMvSgg() {
+		session.update("file.refreshMvSgg");
+	}
+	
 	
 
 }
