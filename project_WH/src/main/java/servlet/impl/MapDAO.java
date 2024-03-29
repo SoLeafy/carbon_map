@@ -28,4 +28,12 @@ public class MapDAO extends EgovComAbstractDAO {
 	public Map<String, Object> getSggExtent(int sgg) {
 		return session.selectOne("map.getSggExtent", sgg);
 	}
+	
+	public List<Map<String, Object>> getSdData() {
+		return session.selectList("map.getSdData");
+	}
+	
+	public List<Map<String, Object>> getSggData(int sd) {
+		return session.selectList("map.getSggData", sd);
+	}
 }

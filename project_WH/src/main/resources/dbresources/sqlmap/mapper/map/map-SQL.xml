@@ -33,4 +33,12 @@
 		WHERE sd_nm = '서울특별시'
 	</select>
 	
+	<select id="getSdData" resultType="map">
+		select sd_nm, totusage from mvdtsd
+	</select>
+	
+	<select id="getSggData" parameterType="int" resultType="map">
+		select sgg_nm, totusage from mvdtsgg where substring(sgg_cd, 1, 2)::INTEGER = #{sd}
+	</select>
+	
 </mapper>

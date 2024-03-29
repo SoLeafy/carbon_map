@@ -10,4 +10,8 @@ public interface MapService {
 	
 	Map<String, Object> getSdExtent(int sd);
 	Map<String, Object> getSggExtent(int sgg);
+	
+	List<Map<String, Object>> getSdData();
+
+	List<Map<String, Object>> getSggData(int sd);
 }

@@ -82,6 +82,8 @@ header{
   content: "✖";
 }
 </style>
+<!--Load the AJAX API-->
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 <script type="text/javascript">
 // ready --------------------------------------------------------------------
 $( document ).ready(function() {
@@ -95,7 +97,7 @@ $( document ).ready(function() {
 	
 	function showResultToast(msg) {
 		let toast = document.createElement('div');
-		toast.classList.add('toast');
+		toast.classList.add('toast1');
 		toast.innerHTML = msg;
 		toastBox.appendChild(toast);
 		
@@ -429,6 +431,175 @@ $( document ).ready(function() {
 		}
 		
 	});
+   
+   // 통계 -------------------------------------------------------------------
+   function makeTable(district, serverData) {
+	   
+   	  let template = `
+   		  <table class='table table-hover'>
+   		    <thead>
+   		        <tr>
+   		            <th>{{__district__}}별</th>
+   		            <th>소비량(kWh)</th>
+   		        </tr>
+   		    </thead>
+   		    <tbody>
+   		        {{__rows__}}
+   		    </tbody>
+   		</table>
+   	  `;
+   	  template = template.replace('{{__district__}}', district);
+   	  
+   	  const tempArr = [];
+   	  
+   	  for(let i = 0; i < serverData.length; i++) {
+   		  let rowTemplate = `
+	    		<tr>
+   		            <td>{{__district__}}</td>
+   		            <td>{{__usage__}}</td>
+   		        </tr>
+	    	  `;
+	      if(district == '시군구') {
+	   		  rowTemplate = rowTemplate.replace('{{__district__}}', serverData[i].sgg_nm);
+	      } else {
+	   		  rowTemplate = rowTemplate.replace('{{__district__}}', serverData[i].sd_nm);
+	      }
+   		  rowTemplate = rowTemplate.replace('{{__usage__}}', serverData[i].totusage);
+   		  tempArr.push(rowTemplate);
+   	  }
+   	  
+   	  template = template.replace('{{__rows__}}', tempArr.join(''));
+   	  document.querySelector("#dataTable").innerHTML = template;
+     }
+   
+   // 통계 검색 버튼
+   $("#chartBtn").on("click", function() {
+	   let chartOpt = $("#chartSd").val();
+	   document.querySelector("#dataTable").innerHTML = '';
+	   
+	   if (Number(chartOpt) === 0) {
+		   return false; // 그냥해봄
+	   } else {
+		   if (Number(chartOpt) === 1) {
+			   // 전국(시도별)
+			   $.ajax({
+				   url: "/chartSd.do",
+				   type: "post",
+				   dataType: "json",
+				   global: false, 
+				   //data: {},
+				   success: function(result) {
+					   let serverData = result;
+					   // console.log(data);
+						// Load the Visualization API and the corechart package.
+					      google.charts.load('current', {'packages':['corechart']});
+
+					      // Set a callback to run when the Google Visualization API is loaded.
+					      google.charts.setOnLoadCallback(drawChart);
+
+					      // Callback that creates and populates a data table,
+					      // instantiates the pie chart, passes in the data and
+					      // draws it.
+					      function drawChart() {
+					    	  
+					    	  let rows = [];
+					    	  result.forEach(e => {
+					    		  	let arr = new Array();
+					    		  	arr.push(e.sd_nm);
+					    		  	arr.push(e.totusage);
+					    		  	rows.push(arr);
+					    		  });
+					    	  console.log(rows);
+
+					        // Create the data table.
+					        let data = new google.visualization.DataTable();
+					        data.addColumn('string', '시도');
+					        data.addColumn('number', 'kWh');
+					        data.addRows(rows);
+
+					        // Set chart options
+					        let options = {'title':'시도별 사용량',
+					                       'width':700,
+					                       'height':500};
+
+					        // Instantiate and draw our chart, passing in some options.
+					        let chart = new google.visualization.BarChart(document.getElementById('chart_div'));
+					        chart.draw(data, options);
+					      }
+					      
+					      makeTable('시도', serverData);
+					   
+				   },
+				   error: function(err) {
+					   console.log(err);
+				   }
+			   });
+		   } else {
+			   // 시도(시군구별)
+			   $.ajax({
+				   url: "/chartSgg.do",
+				   type: "post",
+				   dataType: "json",
+				   data: {sd : chartOpt}, 
+				   global: false, 
+				   success: function(result) {
+					   
+					   let serverData = result;
+						// Load the Visualization API and the corechart package.
+					      google.charts.load('current', {'packages':['corechart']});
+
+					      // Set a callback to run when the Google Visualization API is loaded.
+					      google.charts.setOnLoadCallback(drawChart);
+
+					      // Callback that creates and populates a data table,
+					      // instantiates the pie chart, passes in the data and
+					      // draws it.
+					      function drawChart() {
+					    	  
+					    	  let rows = [];
+					    	  console.log(serverData.length);
+					    	  /* if(chartData.length == 1) { 아 세종시...
+					    		  //console.log(chartData[0]);
+					    		  rows.push(chartData[0].sgg_nm);
+					    		  rows.push(chartData[0].totusage);
+					    	  } else { */
+					    		  serverData.forEach(e => {
+						    		  	let arr = new Array();
+						    		  	arr.push(e.sgg_nm);
+						    		  	arr.push(e.totusage);
+						    		  	rows.push(arr);
+						    		  });
+					    	  //}
+					    	  console.log(rows);
+
+					        // Create the data table.
+					        let data = new google.visualization.DataTable();
+					        data.addColumn('string', '시군구');
+					        data.addColumn('number', 'kWh');
+					        data.addRows(rows);
+
+					        // Set chart options
+					        let options = {'title':'시군구별 사용량',
+					                       'width':700,
+					                       'height':800};
+
+					        // Instantiate and draw our chart, passing in some options.
+					        let chart = new google.visualization.BarChart(document.getElementById('chart_div'));
+					        chart.draw(data, options);
+					      }
+					      
+					      makeTable('시군구', serverData);
+				   },
+				   error: function(err) {
+					   console.log(err);
+				   }
+			   });
+			   
+		   }
+			  
+	   }
+   });
+   
 	
 });
 </script>
@@ -439,37 +610,9 @@ $( document ).ready(function() {
 	</header>
 	<div class="container1">
 		<div class="mycontainer">
-		<!-- 토스트 -->
-		<div id="toastBox">
-			<div class="toast" id="loadingToast"><i class="fa-solid fa-circle-arrow-up"></i> 업로드 진행 중...</div>
-		</div>
+		
 		<aside class="sidebar">
 		사이드바
-		<!-- 드롭다운 -->
-			<div id="ddWrapper">
-				<div id="sdDropdown">
-					<select name="sd" id="sd">
-						<option value="0">시/도 선택</option>
-						<c:forEach items="${sdList }" var="sd">
-						<option value="${sd.sd_cd }">${sd.sd_nm }</option>
-						</c:forEach>
-					</select>
-				</div>
-				<div id="sggDropdown">
-					<select name="sgg" id="sgg">
-						<option value="0">시/군/구 선택</option>
-					</select>
-				</div>
-				<div id="legendDropdown">
-					<select name="legend" id="legend">
-						<option value="1">등간격</option>
-						<option value="2">내추럴 브레이크</option>
-					</select>
-				</div>
-				<div>
-					<button id="searchBtn">검색</button>
-				</div>
-			</div>
 		<!-- 데이터 삽입 -->
 			<div>
 				<form id="uploadForm">
@@ -477,17 +620,67 @@ $( document ).ready(function() {
 					<button type="button" id="uploadBtn">파일 업로드</button>
 				</form>
 			</div>
+		<!-- 드롭다운 -->
+			<div id="ddWrapper">
+				<div id="sdDropdown">
+					<select name="sd" id="sd" class="form-select">
+						<option value="0">시/도 선택</option>
+						<c:forEach items="${sdList }" var="sd">
+						<option value="${sd.sd_cd }">${sd.sd_nm }</option>
+						</c:forEach>
+					</select>
+				</div>
+				<div id="sggDropdown">
+					<select name="sgg" id="sgg" class="form-select">
+						<option value="0">시/군/구 선택</option>
+					</select>
+				</div>
+				<div id="legendDropdown">
+					<select name="legend" id="legend" class="form-select">
+						<option value="1">등간격</option>
+						<option value="2">내추럴 브레이크</option>
+					</select>
+				</div>
+				<div>
+					<button id="searchBtn" class="btn">검색</button>
+				</div>
+			</div>
+		<!-- 통계 -->
+			<div id="chartDd">
+				<select id="chartSd" class="form-select">
+					<option value="0">시/도 선택</option>
+					<option value="1">전국</option>
+					<c:forEach items="${sdList }" var="sd">
+					<option value="${sd.sd_cd }">${sd.sd_nm }</option>
+					</c:forEach>
+				</select>
+				<div>
+					<button id="chartBtn" class="btn">검색</button>			
+				</div>
+			</div>
 		</aside>
 		<main class="mainContainer">
+			<!-- popup overlay -->
 			<div id="popup" class="ol-popup">
 		      <a href="#" id="popup-closer" class="ol-popup-closer"></a>
 		      <div id="popup-content"></div>
 		    </div>
+		    <!-- 차트 -->
+			<!--Div that will hold the pie chart-->
+			<div id="chart">
+	   			<div id="chart_div"></div>
+	   			<div id="dataTable"></div>
+			</div>
 			<!-- 탄소지도 -->
 			<div id="map" class="map"></div>
 			<article>
 			</article>
 		</main>
+		<!-- 토스트 -->
+		<div id="toastBox">
+			<div class="toast1" id="loadingToast"><i class="fa-solid fa-circle-arrow-up"></i> 업로드 진행 중...</div>
+		</div>
+		
 		</div>
 	</div>
 	<!-- <footer>

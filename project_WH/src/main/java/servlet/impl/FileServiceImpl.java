@@ -76,6 +76,7 @@ public class FileServiceImpl extends EgovAbstractServiceImpl implements FileServ
 			}
 			fileDAO.refreshMv();
 			fileDAO.refreshMvSgg();
+			fileDAO.refreshMvSd();
 		}
 		return processedLine;
 	}

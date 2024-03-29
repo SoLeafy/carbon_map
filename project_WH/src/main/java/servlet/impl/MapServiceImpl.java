@@ -35,7 +35,15 @@ public class MapServiceImpl extends EgovAbstractServiceImpl implements MapServic
 	public Map<String, Object> getSggExtent(int sgg) {
 		return mapDAO.getSggExtent(sgg);
 	}
-	
-	
+
+	@Override
+	public List<Map<String, Object>> getSdData() {
+		return mapDAO.getSdData();
+	}
+
+	@Override
+	public List<Map<String, Object>> getSggData(int sd) {
+		return mapDAO.getSggData(sd);
+	}
 
 }

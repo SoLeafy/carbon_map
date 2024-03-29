@@ -38,7 +38,7 @@ article {
 	padding: 20px;
 }
 
-.toast {
+.toast1 {
 	width: 400px;
 	height: 80px;
 	background: #fff;
@@ -56,18 +56,18 @@ article {
 		transform: translateY(0);
 	}
 }
-.toast i {
+.toast1 i {
 	margin: 0 20px;
 	font-size: 35px;
 	color: orange;
 }
-.toast.fail i {
+.toast1.fail i {
 	color: red;
 }
-.toast.success i {
+.toast1.success i {
 	color: green;
 }
-.toast.fail::after {
+.toast1.fail::after {
 	content: '';
 	position: absolute;
 	left: 0;
@@ -77,7 +77,7 @@ article {
 	background: red;
 	animation: anim 3s linear forwards;
 }
-.toast.success::after {
+.toast1.success::after {
 	content: '';
 	position: absolute;
 	left: 0;
@@ -122,6 +122,15 @@ article {
     font-weight: bold;
     box-sizing: border-box;
 }
+#chart {
+	position: relative;
+	width: 90%;
+	background-color: pink;
+}
+#dataTable {
+	position: relative;
+}
+
 
 /* 프로그레스바 */
 /* .progress {

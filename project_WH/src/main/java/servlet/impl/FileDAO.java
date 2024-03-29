@@ -28,6 +28,8 @@ public class FileDAO {
 		session.update("file.refreshMvSgg");
 	}
 	
-	
+	public void refreshMvSd() {
+		session.update("file.refreshMvSd");
+	}
 
 }

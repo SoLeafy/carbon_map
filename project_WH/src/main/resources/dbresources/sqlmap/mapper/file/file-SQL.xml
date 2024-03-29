@@ -21,4 +21,8 @@
 		REFRESH MATERIALIZED VIEW CONCURRENTLY mvdtsgg
 	</update>
 	
+	<update id="refreshMvSd">
+		REFRESH MATERIALIZED VIEW CONCURRENTLY mvdtsd
+	</update>
+	
 </mapper>
