@@ -130,6 +130,56 @@ $( document ).ready(function() {
 		opacity: 0.4
 	});
 	
+	// 파일 메뉴 클릭
+	$("#fileLink").on('click', function() {
+		let selection = document.querySelector('#fileSection');
+		let ddToErase = document.querySelector('#layerDd');
+		let ddToErase2 = document.querySelector('#chartDd');
+		let menu = document.querySelector("#fileLink");
+		let menuToUnSelect = document.querySelector("#mapLink");
+		let menuToUnSelect2 = document.querySelector("#statsLink");
+		
+		selection.style.display = 'block';
+		ddToErase.style.display = 'none';
+		ddToErase2.style.display = 'none';
+		menu.classList.add('selectedMenu');
+		menuToUnSelect.classList.remove('selectedMenu');
+		menuToUnSelect2.classList.remove('selectedMenu');
+	});
+	
+	// 지도 메뉴 클릭
+	$("#mapLink").on('click', function() {
+		let selection = document.querySelector('#layerDd');
+		let ddToErase = document.querySelector('#chartDd');
+		let ddToErase2 = document.querySelector('#fileSection');
+		let menu = document.querySelector("#mapLink");
+		let menuToUnSelect = document.querySelector("#statsLink");
+		let menuToUnSelect2 = document.querySelector("#fileLink");
+		
+		selection.style.display = 'block';
+		ddToErase.style.display = 'none';
+		ddToErase2.style.display = 'none';
+		menu.classList.add('selectedMenu');
+		menuToUnSelect.classList.remove('selectedMenu');
+		menuToUnSelect2.classList.remove('selectedMenu');
+	});
+	
+	// 통계 메뉴 클릭
+	$('#statsLink').on('click', function() {
+		let selection = document.querySelector('#chartDd');
+		let ddToErase = document.querySelector('#layerDd');
+		let ddToErase2 = document.querySelector('#fileSection');
+		let menu = document.querySelector("#statsLink");
+		let menuToUnSelect = document.querySelector("#mapLink");
+		let menuToUnSelect2 = document.querySelector("#fileLink");
+		
+		selection.style.display = 'block';
+		ddToErase.style.display = 'none';
+		ddToErase2.style.display = 'none';
+		menu.classList.add('selectedMenu');
+		menuToUnSelect.classList.remove('selectedMenu');
+		menuToUnSelect2.classList.remove('selectedMenu');
+	});
 	
 	// 시도 드롭다운 변화 -----------------------------------------------------------------------
 	$("#sd").on('change', function() {
@@ -624,13 +674,19 @@ $( document ).ready(function() {
 		
 		<aside>
 		<div class="menu">
-			<div class="menuLink" onclick="location.href='./map.do'">
+			<div class="menuLink selectedMenu" id="fileLink">
+				<div class="menuIcon">
+				<i class="fa-solid fa-file-arrow-up"></i>
+				</div>
+				파일
+			</div>
+			<div class="menuLink" id="mapLink">
 				<div class="menuIcon">
 				<i class="fa-solid fa-map"></i>
 				</div>
 				지도
 			</div>
-			<div class="menuLink" onclick="location.href='./statistics.do'">
+			<div class="menuLink" id="statsLink">
 				<div class="menuIcon">
 				<i class="fa-solid fa-square-poll-horizontal"></i>
 				</div>
@@ -639,7 +695,7 @@ $( document ).ready(function() {
 		</div>
 		<div class="sidebar p-2">
 		<!-- 데이터 삽입 -->
-			<div class="ddWrapper">
+			<div class="ddWrapper" id="fileSection">
 				<form id="uploadForm">
 					<input type="file" id="file" name="file" class='form-control' accept="text/plain" placeholder="txt 파일 업로드" required>
 					<div class="btnWrapper">
@@ -648,7 +704,7 @@ $( document ).ready(function() {
 				</form>
 			</div>
 		<!-- 드롭다운 -->
-			<div class="ddWrapper">
+			<div class="ddWrapper" id="layerDd" style="display:none;">
 				<div id="sdDropdown">
 					<select name="sd" id="sd" class="form-select">
 						<option value="0">시/도 선택</option>
@@ -674,7 +730,7 @@ $( document ).ready(function() {
 				</div>
 			</div>
 		<!-- 통계 -->
-			<div id="chartDd" class="ddWrapper">
+			<div id="chartDd" class="ddWrapper" style="display:none;">
 				<select id="chartSd" class="form-select">
 					<option value="0">시/도 선택</option>
 					<option value="1">전국</option>
