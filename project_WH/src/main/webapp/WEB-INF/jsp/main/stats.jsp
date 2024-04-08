@@ -7,6 +7,7 @@
 <meta charset="UTF-8">
 <title>map</title>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.js"></script>
 <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
 <!-- <script type="text/javascript" src="resources/js/ol.js"></script> -->
 <!-- <link rel="stylesheet" href="resources/css/ol.css" type="text/css"> -->
@@ -77,23 +78,21 @@ $( document ).ready(function() {
 	    view: view,
 	});
 	
-	// 레이어 정의
 	let dtSggLayer = new ol.layer.Tile({
 		source : new ol.source.TileWMS({
 			//url : 'http://172.30.1.65:8080/geoserver/ljs/wms?service=WMS', // 1. 레이어 URL
 			url : 'http://localhost/geoserver/ljs/wms?service=WMS', // 1. 레이어 URL
 			params : {
 				'VERSION' : '1.1.0', // 2. 버전
-				'LAYERS' : 'ljs:c5_gradedbjd', // 3. 작업공간:레이어 명
-				//'BBOX' : [1.3873946E7, 3906626.5, 1.4428045E7, 4670269.5],
-				'BBOX' : [1.4053287E7, 3921838.5, 1.4422936E7, 4641660.5], 
+				'LAYERS' : 'ljs:mvdtbjd', // 3. 작업공간:레이어 명
+				'BBOX' : [1.3873946E7, 3906626.5, 1.4428045E7, 4670269.5], 
 				'SRS' : 'EPSG:3857', // SRID
 				'FORMAT' : 'image/png' // 포맷
 			},
 			serverType : 'geoserver',
 		}),
 		properties: { name : 'sgg' }, 
-		opacity: 0.4
+		opacity: 0.5
 	});
 	
 	let dtSdLayer = new ol.layer.Tile({
@@ -102,15 +101,15 @@ $( document ).ready(function() {
 			url : 'http://localhost/geoserver/ljs/wms?service=WMS', // 1. 레이어 URL
 			params : {
 				'VERSION' : '1.1.0', // 2. 버전
-				'LAYERS' : 'ljs:c5_gradedsgg', // 3. 작업공간:레이어 명
-				'BBOX' : [1.3871489329746835E7, 3910407.083927817, 1.46800091844669E7, 4666488.829376992], 
+				'LAYERS' : 'ljs:mvdtsgg', // 3. 작업공간:레이어 명
+				'BBOX' : [1.3873946E7, 3906626.5, 1.4428045E7, 4670269.5], 
 				'SRS' : 'EPSG:3857', // SRID
 				'FORMAT' : 'image/png' // 포맷
 			},
 			serverType : 'geoserver',
 		}),
 		properties: { name : 'sd' }, 
-		opacity: 0.4
+		opacity: 0.5
 	});
 	
 	let dtLayer = new ol.layer.Tile({
@@ -119,21 +118,20 @@ $( document ).ready(function() {
 			url : 'http://localhost/geoserver/ljs/wms?service=WMS', // 1. 레이어 URL
 			params : {
 				'VERSION' : '1.1.0', // 2. 버전
-				'LAYERS' : 'ljs:c5_gradedsd', // 3. 작업공간:레이어 명
-				'BBOX' : [1.3871489341071218E7, 3910407.083927817, 1.4680011171788167E7, 4666488.829376997], 
+				'LAYERS' : 'ljs:mvdtsd', // 3. 작업공간:레이어 명
+				'BBOX' : [1.3873946E7, 3906626.5, 1.4428045E7, 4670269.5], 
 				'SRS' : 'EPSG:3857', // SRID
 				'FORMAT' : 'image/png' // 포맷
 			},
 			serverType : 'geoserver',
 		}),
 		properties: { name : 'all' }, 
-		opacity: 0.4
+		opacity: 0.5
 	});
 	
 	
 	// 시도 드롭다운 변화 -----------------------------------------------------------------------
 	$("#sd").on('change', function() {
-		map.getOverlays().clear();
 		let sd = $("#sd option:checked").val(); // 시도 코드
 		let sggDd = document.querySelector("#sgg"); // 시군구 드롭다운
 		let sggOpt = `<option value="0">시/군/구 선택</option>`; // 시군구 Option html String
@@ -214,118 +212,48 @@ $( document ).ready(function() {
 		}
 	})
 	
-	function makeLegend(legendOpt, layerArr, district, divNum) { // dist - 0: 전국, 1: 시도, 2: 시군구
-		let target = document.querySelector("#legendDiv");
-		target.innerHTML = '';
-		
-		let table = `
-			<table id="legendTable" class="table">
-				<thead style="text-align: center">
-					<tr>
-						<th>색상</th>
-						<th>범위(kWh)</th>
-					</tr>
-				</thead>
-				<tbody>
-					{{__row__}}
-				</tbody>
-			</table>
-		`;
-		const rowsArr = [];
-
-		if(legendOpt == 1) { // 등간격
-			layerArr.forEach(layer => {
-				layer.getSource().updateParams({'STYLES' : "황사dgg_grade"});
-			});
-			// 범례 가져와
-			$.ajax({
-				url: "/dggLegend.do",
-				type: "post",
-				dataType: "json",
-				data: {opt : district, div: divNum},
-				global: false, 
-				success: function(data) {
-					//console.log(data);
-					for(let i = 0; i < 5; i++) {
-						let row = `
-							<tr>
-								<td class="{{__color__}}"></td>
-								<td>{{__val__}}</td>
-							</tr>
-						`;
-						let colorCode = i + 1;
-						let rowData = data[i].start.toLocaleString('ko-KR') + " ~ " + data[i].end.toLocaleString('ko-KR');
-						row = row.replace("{{__color__}}", "dggColor"+colorCode);
-						row = row.replace("{{__val__}}", rowData);
-						rowsArr.push(row);
-					}
-					table = table.replace("{{__row__}}", rowsArr.join(''));
-					target.innerHTML = table;
-				},
-				error: function(err) {
-					console.log(err);
-				}
-			});
-		} else if (legendOpt == 2) { // 내추럴 브레이크
-			layerArr.forEach(layer => {
-				layer.getSource().updateParams({'STYLES' : "grade"});
-			});
-			// 범례 가져와
-			$.ajax({
-				url: "/nbLegend.do",
-				type: "post",
-				dataType: "json",
-				data: {opt : district, div: divNum},
-				global: false, 
-				success: function(data) {
-					//console.log(data);
-					for(let i = 0; i < 5; i++) {
-						let row = `
-							<tr>
-								<td class="{{__color__}}"></td>
-								<td>{{__val__}}</td>
-							</tr>
-						`;
-						let colorCode = i + 1;
-						let rowData = data[i].start.toLocaleString('ko-KR') + " ~ " + data[i].end.toLocaleString('ko-KR');
-						row = row.replace("{{__color__}}", "nbColor"+colorCode);
-						row = row.replace("{{__val__}}", rowData);
-						rowsArr.push(row);
-					}
-					table = table.replace("{{__row__}}", rowsArr.join(''));
-					target.innerHTML = table;
-				},
-				error: function(err) {
-					console.log(err);
-				}
-			});
-		}
-	}
-	
 	// 레이어 검색 ----------------------------------------------------------------------
 	$("#searchBtn").on('click', function() {
-		let target = document.querySelector("#legendDiv");
-		target.innerHTML = '';
-		map.getOverlays().clear();
-		let layerArr = map.getAllLayers().filter(layer => layer.get('name') != 'basemap');
-		layerArr.forEach(layer => map.removeLayer(layer));
-		
-		let sgg = $("#sgg option:checked").val();
-		let sd = $("#sd option:checked").val();
 		
 		let legendOpt = $('#legend option:checked').val();
 		
-		if (sgg != 0) { // 시군구 셀렉
+		if(legendOpt == 1) { // 등간격
+			
+		} else if (legendOpt == 2) { // 내추럴 브레이크
+			
+		}
+		
+		if ($("#sgg option:checked").val() != 0) {
+			//console.log($("#sgg option:checked").val());
+			map.removeLayer(dtSdLayer);
+			map.removeLayer(dtSggLayer);
+			map.removeLayer(dtLayer);
+			
+			let sgg = $("#sgg option:checked").val(); // 시군구 코드
+			
 			dtSggLayer.getSource().updateParams({'CQL_FILTER' : "bjdcd LIKE '" + sgg + "%'"});
-			makeLegend(legendOpt, layerArr, 2, sgg);
+			
 			map.addLayer(dtSggLayer);
-		} else if (sd == 1) { // 전국
-			makeLegend(legendOpt, layerArr, 0, sd);
-			map.addLayer(dtLayer);
-		} else if (sd != 0) { // 시도 셀렉
+		
+		} else if ($("#sd option:checked").val() != 0) {
+			map.removeLayer(dtSdLayer);
+			map.removeLayer(dtSggLayer);
+			map.removeLayer(dtLayer);
+			
+			let sd = $("#sd option:checked").val(); // 시도 코드
+			 
 			dtSdLayer.getSource().updateParams({'CQL_FILTER' : "sgg_cd LIKE '" + sd + "%'"});
-			makeLegend(legendOpt, layerArr, 1, sd);
+			
 			map.addLayer(dtSdLayer);
+			
+		} else if ($("#sd option:checked").val() == 1) {
+			map.removeLayer(dtSdLayer);
+			map.removeLayer(dtSggLayer);
+			map.removeLayer(dtLayer);
+			
+			let sd = $("#sd option:checked").val(); // 시도 코드
+			
+			map.addLayer(dtLayer);
 		} else {
 			alert("지역 정보를 선택하세요.");
 		}
@@ -353,7 +281,7 @@ $( document ).ready(function() {
 	};
 	
 	
-	// wms GetFeatureInfo -----------------------------------------------------
+	// wms GetFeatureInfo 해보기 -----------------------------------------------------
 	// 클릭한 지점에 Overlay
 	map.on('singleclick', async function(e) { // async 없으면 await 때문에 안됨... (블로그에는 화살표함수로 async 없던데 왤까)
 		map.getOverlays().clear();
@@ -365,7 +293,7 @@ $( document ).ready(function() {
 		// WMS 레이어의 Source 호출
 		const source = wmsLayer.getSource();
 		const url = source.getFeatureInfoUrl(e.coordinate, map.getView().getResolution(), 'EPSG:3857', {
-			QUERY_LAYERS: 'ljs:c5_gradedbjd', 
+			QUERY_LAYERS: 'ljs:mvdtbjd', 
 			INFO_FORMAT: 'application/json'
 		});
 		// http://172.30.1.65:8080/geoserver/ljs/wms?service=WMS&SERVICE=WMS&VERSION=1.1.0&REQUEST=GetFeatureInfo&FORMAT=image/png&TRANSPARENT=true&QUERY_LAYERS=ljs:mvdtsgg&LAYERS=ljs:mvdtbjd&BBOX=14142684.721436452,4520180.104672182,14143907.713889016,4521403.097124745&SRS=EPSG:3857&CQL_FILTER=bjdcd LIKE '11230%'&INFO_FORMAT=application/json&X=215&Y=195&WIDTH=256&HEIGHT=256&STYLES=
@@ -446,8 +374,6 @@ $( document ).ready(function() {
 			alert("지원하지 않는 파일");
 		}
 		
-		$('#file').val() = '';
-		
 	});
    
    // 통계 -------------------------------------------------------------------
@@ -477,10 +403,12 @@ $( document ).ready(function() {
    		            <td>{{__usage__}}</td>
    		        </tr>
 	    	  `;
-	      
-	      let names = district == '시군구' ? serverData[i].sgg_nm : serverData[i].sd_nm;
-	      rowTemplate = rowTemplate.replace('{{__district__}}', names);
-   		  rowTemplate = rowTemplate.replace('{{__usage__}}', serverData[i].totusage.toLocaleString('ko-KR'));
+	      if(district == '시군구') {
+	   		  rowTemplate = rowTemplate.replace('{{__district__}}', serverData[i].sgg_nm);
+	      } else {
+	   		  rowTemplate = rowTemplate.replace('{{__district__}}', serverData[i].sd_nm);
+	      }
+   		  rowTemplate = rowTemplate.replace('{{__usage__}}', serverData[i].totusage);
    		  tempArr.push(rowTemplate);
    	  }
    	  
@@ -535,8 +463,8 @@ $( document ).ready(function() {
 
 					        // Set chart options
 					        let options = {'title':'시도별 사용량',
-					                       'width':800,
-					                       'height':100 + 40 * rows.length};
+					                       'width':700,
+					                       'height':500};
 
 					        // Instantiate and draw our chart, passing in some options.
 					        let chart = new google.visualization.BarChart(document.getElementById('chart_div'));
@@ -573,12 +501,19 @@ $( document ).ready(function() {
 					      function drawChart() {
 					    	  
 					    	  let rows = [];
-				    		  serverData.forEach(e => {
-					    		  	let arr = new Array();
-					    		  	arr.push(e.sgg_nm);
-					    		  	arr.push(e.totusage);
-					    		  	rows.push(arr);
-					    		  });
+					    	  console.log(serverData.length);
+					    	  /* if(chartData.length == 1) { 아 세종시...
+					    		  //console.log(chartData[0]);
+					    		  rows.push(chartData[0].sgg_nm);
+					    		  rows.push(chartData[0].totusage);
+					    	  } else { */
+					    		  serverData.forEach(e => {
+						    		  	let arr = new Array();
+						    		  	arr.push(e.sgg_nm);
+						    		  	arr.push(e.totusage);
+						    		  	rows.push(arr);
+						    		  });
+					    	  //}
 					    	  console.log(rows);
 
 					        // Create the data table.
@@ -589,8 +524,8 @@ $( document ).ready(function() {
 
 					        // Set chart options
 					        let options = {'title':'시군구별 사용량',
-					                       'width':800,
-					                       'height': 100 + 40 * rows.length};
+					                       'width':700,
+					                       'height':800};
 
 					        // Instantiate and draw our chart, passing in some options.
 					        let chart = new google.visualization.BarChart(document.getElementById('chart_div'));
@@ -608,8 +543,8 @@ $( document ).ready(function() {
    });
    
    
-   // 범례 테이블 드래그 ㅡㅡ
-   $("#legend").draggable({ containment:"#map", scroll: false });
+   // 범례 테이블 드래그
+   $("#legend").draggable({ containment:"#wrapper", scroll: false });
    
 	
 });
@@ -638,41 +573,6 @@ $( document ).ready(function() {
 			</div>
 		</div>
 		<div class="sidebar p-2">
-		<!-- 데이터 삽입 -->
-			<div class="ddWrapper">
-				<form id="uploadForm">
-					<input type="file" id="file" name="file" class='form-control' accept="text/plain" placeholder="txt 파일 업로드" required>
-					<div class="btnWrapper">
-					<button type="button" id="uploadBtn" class="btn">파일 업로드</button>
-					</div>
-				</form>
-			</div>
-		<!-- 드롭다운 -->
-			<div class="ddWrapper">
-				<div id="sdDropdown">
-					<select name="sd" id="sd" class="form-select">
-						<option value="0">시/도 선택</option>
-						<option value="1">전국</option>
-						<c:forEach items="${sdList }" var="sd">
-						<option value="${sd.sd_cd }">${sd.sd_nm }</option>
-						</c:forEach>
-					</select>
-				</div>
-				<div id="sggDropdown">
-					<select name="sgg" id="sgg" class="form-select">
-						<option value="0">시/군/구 선택</option>
-					</select>
-				</div>
-				<div id="legendDropdown">
-					<select name="legend" id="legend" class="form-select">
-						<option value="1">등간격</option>
-						<option value="2">내추럴 브레이크</option>
-					</select>
-				</div>
-				<div class="btnWrapper">
-					<button id="searchBtn" class="btn">지도 검색</button>
-				</div>
-			</div>
 		<!-- 통계 -->
 			<div id="chartDd" class="ddWrapper">
 				<select id="chartSd" class="form-select">
@@ -683,7 +583,7 @@ $( document ).ready(function() {
 					</c:forEach>
 				</select>
 				<div class="btnWrapper">
-					<button id="chartBtn" class="btn" data-bs-toggle="modal" data-bs-target="#dataModal">통계 검색</button>			
+					<button id="chartBtn" class="btn">검색</button>			
 				</div>
 			</div>
 			</div>
@@ -694,42 +594,13 @@ $( document ).ready(function() {
 		      <a href="#" id="popup-closer" class="ol-popup-closer"></a>
 		      <div id="popup-content"></div>
 		    </div>
-		    
-			<!-- 탄소지도 -->
-			<div id="wrapper">
-				<div id="map" class="map"></div>
-					<!-- 범례 위치 -->
-					<div id="legendDiv" class="rounded legendDiv"></div>
-				
-				<!-- 모달 -->
-				<!-- Modal -->
-				<div class="modal fade" id="dataModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-				  <div class="modal-dialog modal-xl modal-dialog-scrollable">
-				    <div class="modal-content">
-				      <div class="modal-header">
-				        <h5 class="modal-title" id="exampleModalLabel">통계</h5>
-				        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-				      </div>
-				      <div class="modal-body">
-				        <!-- 차트 -->
-						<!--Div that will hold the pie chart-->
-						<div id="chart">
-				   			<div id="chart_div"></div>
-				   			<div id="dataTable"></div>
-						</div>
-				      </div>
-				      <!-- <div class="modal-footer">
-				      </div> -->
-				    </div>
-				  </div>
-				</div>
-				
+		    <!-- 차트 -->
+			<!--Div that will hold the pie chart-->
+			<div id="chart">
+	   			<div id="chart_div"></div>
+	   			<div id="dataTable"></div>
 			</div>
 		</main>
-		<!-- 토스트 -->
-		<div id="toastBox">
-			<div class="toast1" id="loadingToast"><i class="fa-solid fa-circle-arrow-up"></i> 업로드 진행 중...</div>
-		</div>
 		
 		</div>
 	</div>

@@ -12,6 +12,8 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -130,4 +132,13 @@ public class MapController {
 			return String.valueOf(result);
 		}
 	}
+	
+	// 통계 페이지
+	@GetMapping("/statistics.do")
+	public String stat(Model model) {
+		List<Map<String, Object>> sdList = mapService.getSdList();
+		model.addAttribute("sdList", sdList);
+		return "main/stats";
+	}
+	
 }

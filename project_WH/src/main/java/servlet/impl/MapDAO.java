@@ -36,4 +36,28 @@ public class MapDAO extends EgovComAbstractDAO {
 	public List<Map<String, Object>> getSggData(int sd) {
 		return session.selectList("map.getSggData", sd);
 	}
+	
+	public List<Map<String, Object>> getDggBjd(int div) {
+		return session.selectList("map.getDggBjd", div);
+	}
+	
+	public List<Map<String, Object>> getDggSgg(int div) {
+		return session.selectList("map.getDggSgg", div);
+	}
+	
+	public List<Map<String, Object>> getDggSd() {
+		return session.selectList("map.getDggSd");
+	}
+
+	public List<Map<String, Object>> getNbSd() {
+		return session.selectList("map.getNbSd");
+	}
+
+	public List<Map<String, Object>> getNbSgg(int div) {
+		return session.selectList("map.getNbSgg", div);
+	}
+
+	public List<Map<String, Object>> getNbBjd(int div) {
+		return session.selectList("map.getNbBjd", div);
+	}
 }

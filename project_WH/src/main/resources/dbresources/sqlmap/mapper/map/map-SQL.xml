@@ -7,7 +7,7 @@
 	</select>
 	
 	<select id="sggList" parameterType="String" resultType="map">
-		SELECT sgg_cd, sgg_nm FROM tl_sgg WHERE sgg_cd LIKE CONCAT(#{sd}, '%')
+		SELECT adm_sect_c as sgg_cd, sgg_nm FROM tl_sgg WHERE sgg_cd LIKE CONCAT(#{sd}, '%')
 	</select>
 	
 	<select id="getSdExtent" parameterType="int" resultType="map">
@@ -21,10 +21,10 @@
 	
 	<select id="getSggExtent" parameterType="int" resultType="map">
 	   select 
-	        (select ST_XMax(geom) as xmax FROM tl_sgg WHERE sgg_cd = #{sgg_cd}::varchar order by xmax desc limit 1)
-	        ,(select ST_YMax(geom) as ymax FROM tl_sgg WHERE  sgg_cd =#{sgg_cd}::varchar order by ymax desc limit 1)
-	        ,(select  ST_XMin(geom) as xmin FROM tl_sgg WHERE  sgg_cd = #{sgg_cd}::varchar order by xmin  limit 1)
-	        ,(select ST_YMin(geom) as ymin FROM tl_sgg WHERE  sgg_cd = #{sgg_cd}::varchar order by ymin limit 1)
+	        (select ST_XMax(geom) as xmax FROM tl_sgg WHERE adm_sect_c = #{sgg_cd}::varchar order by xmax desc limit 1)
+	        ,(select ST_YMax(geom) as ymax FROM tl_sgg WHERE  adm_sect_c =#{sgg_cd}::varchar order by ymax desc limit 1)
+	        ,(select  ST_XMin(geom) as xmin FROM tl_sgg WHERE  adm_sect_c = #{sgg_cd}::varchar order by xmin  limit 1)
+	        ,(select ST_YMin(geom) as ymin FROM tl_sgg WHERE  adm_sect_c = #{sgg_cd}::varchar order by ymin limit 1)
 	    from tl_sgg limit 1
 	</select>
 	
@@ -39,6 +39,103 @@
 	
 	<select id="getSggData" parameterType="int" resultType="map">
 		select sgg_nm, totusage from mvdtsgg where substring(sgg_cd, 1, 2)::INTEGER = #{sd}
+	</select>
+	
+	<select id="getDggBjd" resultType="map" parameterType="int">
+		WITH minmax AS (
+		    SELECT 
+		        min(totusage) as mina, 
+		        max(totusage) as maxa, 
+		        (max(totusage)-min(totusage))*0.2 as gap 
+		    FROM c5_gradedbjd
+		    WHERE left(bjdcd, 5)=#{div}::text
+		)
+		SELECT 
+		    i AS level,
+		    mina + (gap * (i - 1)) + 1 as start,
+		    CASE 
+		        WHEN i = 5 THEN maxa
+		        ELSE mina + (gap * i)
+		    END as end
+		FROM 
+		    minmax,
+		    generate_series(1, 5) AS gs(i);
+	</select>
+	
+	<select id="getDggSgg" resultType="map" parameterType="int">
+		WITH minmax AS (
+		    SELECT 
+		        min(totusage) as mina, 
+		        max(totusage) as maxa, 
+		        (max(totusage)-min(totusage))*0.2 as gap 
+		    FROM c5_gradedsgg
+		    WHERE left(sgg_cd, 2)=#{div}::text
+		)
+		SELECT 
+		    i AS level,
+		    mina + (gap * (i - 1)) + 1 as start,
+		    CASE 
+		        WHEN i = 5 THEN maxa
+		        ELSE mina + (gap * i)
+		    END as end
+		FROM 
+		    minmax,
+		    generate_series(1, 5) AS gs(i);
+	</select>
+	
+	<select id="getDggSd" resultType="map">
+		WITH minmax AS (
+		    SELECT 
+		        min(totusage) as mina, 
+		        max(totusage) as maxa, 
+		        (max(totusage)-min(totusage))*0.2 as gap 
+		    FROM c5_gradedsd
+		)
+		SELECT 
+		    i AS level,
+		    mina + (gap * (i - 1)) + 1 as start,
+		    CASE 
+		        WHEN i = 5 THEN maxa
+		        ELSE mina + (gap * i)
+		    END as end
+		FROM 
+		    minmax,
+		    generate_series(1, 5) AS gs(i);
+	</select>
+	
+	<select id="getNbSd" resultType="map">
+		with maxes AS (
+	         SELECT unnest(cdb_jenksbins(array_agg(totusage), 5)) AS end
+	           FROM c5_gradedsd
+	        )
+	 SELECT row_number() OVER () AS level,
+	    lag(maxes.end, 1, 0::numeric) OVER () AS start,
+	    maxes.end
+	   FROM maxes
+	</select>
+	
+	<select id="getNbSgg" resultType="map" parameterType="int">
+		with maxes AS (
+	         SELECT unnest(cdb_jenksbins(array_agg(totusage), 5)) AS end
+	           FROM c5_gradedsgg
+	           WHERE left(sgg_cd, 2)=#{div}::text
+	        )
+	 SELECT row_number() OVER () AS level,
+	    lag(maxes.end, 1, 0::numeric) OVER () AS start,
+	    maxes.end
+	   FROM maxes
+	</select>
+	
+	<select id="getNbBjd" resultType="map" parameterType="int">
+		with maxes AS (
+	         SELECT unnest(cdb_jenksbins(array_agg(totusage), 5)) AS end
+	           FROM c5_gradedbjd 
+	           WHERE left(bjdcd, 5)=#{div}::text
+	        )
+	 SELECT row_number() OVER () AS level,
+	    lag(maxes.end, 1, 0::numeric) OVER () AS start,
+	    maxes.end
+	   FROM maxes
 	</select>
 	
 </mapper>

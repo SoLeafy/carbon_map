@@ -14,4 +14,8 @@ public interface MapService {
 	List<Map<String, Object>> getSdData();
 
 	List<Map<String, Object>> getSggData(int sd);
+	
+	List<Map<String, Object>> getDggLegend(int opt, int div);
+
+	List<Map<String, Object>> getNbLegend(int opt, int div);
 }

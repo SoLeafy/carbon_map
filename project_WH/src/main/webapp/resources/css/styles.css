@@ -1,35 +1,94 @@
 @charset "UTF-8";
 /* css/style.css */
 
-.container {
+.container1 {
 	/* max-width: 1000px; */
 	margin: 0 auto;
 	display: flex;
 	flex-direction: column;
-	min-height: calc(100vh - 60px);
+	height: calc(100vh - 60px);
+}
+header{
+	height: 60px;
+	color: white;
+	background-color: #023047;
+	display: flex;
+	align-items: center;
 }
 .mycontainer {
-	
-}
-aside {
-	width: 250px;
-	background-color: pink;
-}
-article {
-
-}
-.map {
-	height: 100vh;
+	display: flex;
 	width: 100%;
+	height: inherit;
+}
+.mainContainer {
+	width: 100%;
+	height: inherit;
+}
+.wrapper {
+	width: 100%;
+	height: inherit;
 }
 #ddWrapper {
 	display: flex;
+	flex-direction: column;
+}
+aside {
+	display: flex;
+}
+.menu {
+	width: 50px;
+	color: white;
+	background-color: #023047;
+}
+.menuLink {
+	width: 100%;
+	height: 50px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+.menuLink:hover {
+	cursor: pointer;
+	background-color: #ffb703;
+}
+.menuIcon {
+	display: block;
+}
+.sidebar {
+	width: 400px;
+	background-color: #8ecae6;
+	display: flex;
+	flex-direction: column;
+}
+.map {
+	height: calc(100vh - 60px);
+	width: 100%;
+}
+.ddWrapper {
+	display: flex;
+	flex-direction: column;
+	margin-top: 10px;
+}
+.ddWrapper div {
+	margin-top: 5px;
+}
+.btnWrapper {
+	width: 100%;
+	display: flex;
+	justify-content: end;
+}
+.btnWrapper button {
+	width: 100% !important;
+	color: white;
+	background-color: #219ebc !important;
 }
 
 /* 토스트 */
 #toastBox {
 	position: absolute;
-	bottom: 30px;
+	/* bottom: 30px;
+	right: 30px; */
+	top: 80px;
 	right: 30px;
 	display: flex;
 	align-items: flex-start;
@@ -122,14 +181,139 @@ article {
     font-weight: bold;
     box-sizing: border-box;
 }
+/* 팝업 */
+.ol-popup {
+  position: absolute;
+  background-color: white;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  padding: 15px;
+  border-radius: 10px;
+  border: 1px solid #cccccc;
+  bottom: 12px;
+  left: -50px;
+  min-width: 200px;
+}
+.ol-popup:after, .ol-popup:before {
+  top: 100%;
+  border: solid transparent;
+  content: " ";
+  height: 0;
+  width: 0;
+  position: absolute;
+  pointer-events: none;
+}
+.ol-popup:after {
+  border-top-color: white;
+  border-width: 10px;
+  left: 48px;
+  margin-left: -10px;
+}
+.ol-popup:before {
+  border-top-color: #cccccc;
+  border-width: 11px;
+  left: 48px;
+  margin-left: -11px;
+}
+.ol-popup-closer {
+  text-decoration: none;
+  position: absolute;
+  top: 2px;
+  right: 8px;
+}
+.ol-popup-closer:after {
+  content: "✖";
+}
+
+/* 차트 */
 #chart {
-	position: relative;
+	display: flex;
+	/* height: inherit; */
+	/* position: absolute;
 	width: 90%;
-	background-color: pink;
+	background-color: gray;
+	z-index: 10001; */
 }
+/* #chart_div {} */
 #dataTable {
-	position: relative;
+	/* position: absolute; */
+	/* overflow-y: auto; */
 }
+
+/* 범례 */
+.legendDiv {
+	display: inline-block;
+	position: absolute;
+	z-index: 10000;
+	/* background-color: white; */
+	bottom: 5px;
+	right: 5px;
+	width: 350px;
+	height: 250px;
+	padding: 0.5em;
+	/* float: left; */
+	margin: 0 10px 10px 0;
+	/* cursor: grab; */
+  /* width: 170px;
+  height: 180px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid black;
+  border-radius: 2px;
+  font-size: x-small;
+  background-color: white;
+  position: absolute;
+  left: 50px;
+  top: 50px;
+  
+  user-select: none;
+  
+   drag cursor  
+  cursor: grab; */
+}
+#legendTable {
+	background-color: white;
+}
+/* .legendDiv:active {
+	cursor: grabbing;
+} */
+.dggColor1 {
+	background-color: white !important;
+}
+.dggColor2 {
+	background-color: #ffffd4 !important;
+}
+.dggColor3 {
+	background-color: #fec46c !important;
+}
+.dggColor4 {
+	background-color: #e57217 !important;
+}
+.dggColor5 {
+	background-color: #993404 !important;
+}
+.nbColor1 {
+	background-color: white !important;
+}
+.nbColor2 {
+	background-color: #f7fbff !important;
+}
+.nbColor3 {
+	background-color: #afd1e7 !important;
+}
+.nbColor4 {
+	background-color: #3e8ec4 !important;
+}
+.nbColor5 {
+	background-color: #08306b !important;
+}
+
+/* 통계 */
+/* #chart {
+	display: flex;
+	position: relative;
+	height: calc(100vh - 60px);
+} */
 
 
 /* 프로그레스바 */

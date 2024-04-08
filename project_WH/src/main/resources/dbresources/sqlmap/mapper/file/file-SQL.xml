@@ -14,15 +14,21 @@
 	</insert>
 	
 	<update id="refreshMv">
-		REFRESH MATERIALIZED VIEW CONCURRENTLY mvdtbjd
+		REFRESH MATERIALIZED VIEW c5_gradedbjd;
+		REFRESH MATERIALIZED VIEW c5_gradedsgg;
+		REFRESH MATERIALIZED VIEW c5_gradedsd;
+	</update>
+	
+	<update id="refreshMvBjd">
+		REFRESH MATERIALIZED VIEW mvdtbjd
 	</update>
 	
 	<update id="refreshMvSgg">
-		REFRESH MATERIALIZED VIEW CONCURRENTLY mvdtsgg
+		REFRESH MATERIALIZED VIEW mvdtsgg
 	</update>
 	
 	<update id="refreshMvSd">
-		REFRESH MATERIALIZED VIEW CONCURRENTLY mvdtsd
+		REFRESH MATERIALIZED VIEW mvdtsd
 	</update>
 	
 </mapper>
