@@ -1,34 +1,3 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<title>map</title>
-<!-- 프로젝트 resource -->
-<link rel="stylesheet" href="resources/css/styles.css" type="text/css">
-<script type="text/javascript" src="resources/js/app.js"></script>
-<!-- <script type="text/javascript" src="resources/js/script.js"></script> -->
-<!-- jquery -->
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
-<!-- OpenLayers 5.3 버전 -->
-<!-- <script type="text/javascript" src="resources/js/ol.js"></script> -->
-<!-- <link rel="stylesheet" href="resources/css/ol.css" type="text/css"> -->
-<!-- OpenLayers 링크 6.15.1 -->
-<script
-   src="https://cdn.rawgit.com/openlayers/openlayers.github.io/master/en/v6.15.1/build/ol.js"></script>
-<link rel="stylesheet"
-   href="https://cdn.jsdelivr.net/npm/ol@v6.15.1/ol.css">
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-<!-- fontawesome -->
-<script src="https://kit.fontawesome.com/53f2b43024.js" crossorigin="anonymous"></script>
-<!-- 구글차트 -->
-<!--Load the AJAX API-->
-<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-<script type="text/javascript">
 // ready --------------------------------------------------------------------
 $( document ).ready(function() {
 	//토스트
@@ -37,20 +6,32 @@ $( document ).ready(function() {
 	let successMsg = '<i class="fa-solid fa-circle-check"></i> 파일 업로드 성공';
 	let failMsg = '<i class="fa-solid fa-circle-xmark"></i> 파일 업로드 실패';
 	let loadingToast = $("#loadingToast");
-	// '업로드 중' 토스트 가리기
+	// 업로드 중 토스트 가리기
 	loadingToast.hide();
-	// 업로드 시작되면 토스트 보이기
-	$(document).ajaxStart(function () {
-      console.log("ajax start");
-      loadingToast.show();
-   });
 	
-	// 맵, 레이어 선언 ----------------------------------------------------------------------------
-	// 맵 객체의 base map tile
+	/* function showResultToast(msg) {
+		let toast = document.createElement('div');
+		toast.classList.add('toast1');
+		toast.innerHTML = msg;
+		toastBox.appendChild(toast);
+		
+		if(msg.includes('실패')) {
+			toast.classList.add('fail');
+		}
+		if(msg.includes('성공')) {
+			toast.classList.add('success');
+		}
+		
+		setTimeout(() => {
+			toast.remove();
+		}, 3000);
+	} */
+	
+	/*// 맵 객체의 base map tile
 	let baseMapSource = new ol.source.XYZ({
         // url: 'https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png' // vworld의 지도를 가져온다.
         url: 'http://api.vworld.kr/req/wmts/1.0.0/${apiKey}/Base/{z}/{y}/{x}.png'
-      });
+      });*/
 	let baseMap = new ol.layer.Tile({
         source: baseMapSource,
         properties: { name: 'basemap' },
@@ -123,27 +104,55 @@ $( document ).ready(function() {
 		opacity: 0.4
 	});
 	
-	// 페이지 옮기기 --------------------------------------------------
-	/* function selectPage(sectionToShow, selectedMenu) {
-		let selection = document.querySelector(selectionToShow);
-		let ddToErase = []; // selection 제외한 드롭다운
-		let menu = document.querySelector(selectedMenu);
-		let menuToUnselect = []; // 선택된 menu 제외한 메뉴
-	} */
-	
 	// 파일 메뉴 클릭
 	$("#fileLink").on('click', function() {
-		selectPage("#fileSection", "#fileLink");
+		let selection = document.querySelector('#fileSection');
+		let ddToErase = document.querySelector('#layerDd');
+		let ddToErase2 = document.querySelector('#chartDd');
+		let menu = document.querySelector("#fileLink");
+		let menuToUnSelect = document.querySelector("#mapLink");
+		let menuToUnSelect2 = document.querySelector("#statsLink");
+		
+		selection.style.display = 'block';
+		ddToErase.style.display = 'none';
+		ddToErase2.style.display = 'none';
+		menu.classList.add('selectedMenu');
+		menuToUnSelect.classList.remove('selectedMenu');
+		menuToUnSelect2.classList.remove('selectedMenu');
 	});
 	
 	// 지도 메뉴 클릭
 	$("#mapLink").on('click', function() {
-		selectPage("#layerDd", "#mapLink");
+		let selection = document.querySelector('#layerDd');
+		let ddToErase = document.querySelector('#chartDd');
+		let ddToErase2 = document.querySelector('#fileSection');
+		let menu = document.querySelector("#mapLink");
+		let menuToUnSelect = document.querySelector("#statsLink");
+		let menuToUnSelect2 = document.querySelector("#fileLink");
+		
+		selection.style.display = 'block';
+		ddToErase.style.display = 'none';
+		ddToErase2.style.display = 'none';
+		menu.classList.add('selectedMenu');
+		menuToUnSelect.classList.remove('selectedMenu');
+		menuToUnSelect2.classList.remove('selectedMenu');
 	});
 	
 	// 통계 메뉴 클릭
 	$('#statsLink').on('click', function() {
-		selectPage("#chartDd", "#statsLink");
+		let selection = document.querySelector('#chartDd');
+		let ddToErase = document.querySelector('#layerDd');
+		let ddToErase2 = document.querySelector('#fileSection');
+		let menu = document.querySelector("#statsLink");
+		let menuToUnSelect = document.querySelector("#mapLink");
+		let menuToUnSelect2 = document.querySelector("#fileLink");
+		
+		selection.style.display = 'block';
+		ddToErase.style.display = 'none';
+		ddToErase2.style.display = 'none';
+		menu.classList.add('selectedMenu');
+		menuToUnSelect.classList.remove('selectedMenu');
+		menuToUnSelect2.classList.remove('selectedMenu');
 	});
 	
 	// 시도 드롭다운 변화 -----------------------------------------------------------------------
@@ -156,6 +165,7 @@ $( document ).ready(function() {
 		let sgg = $("#sgg option:checked").val(); // 시군구 코드
 		
 		if(parseInt(sd) > 1) {
+			
 			// 시도 선택 시 시군구 드롭다운 옵션 받아오기 (db)
 			$.ajax({
 				url: "./sdSelect.do",
@@ -201,6 +211,7 @@ $( document ).ready(function() {
 		let sggDd = document.querySelector("#sgg");
 		
 		if(Number(sgg) !== 0) {
+			
 			$.ajax({
 				url: "./sggSelect.do",
 				type: "post",
@@ -222,9 +233,98 @@ $( document ).ready(function() {
 					}
 				},
 				error: function() {}
+				
+			})
+		}
+	})
+	
+	function makeLegend(legendOpt, layerArr, district, divNum) { // dist - 0: 전국, 1: 시도, 2: 시군구
+		let target = document.querySelector("#legendDiv");
+		target.innerHTML = '';
+		
+		let table = `
+			<table id="legendTable" class="table">
+				<thead style="text-align: center">
+					<tr>
+						<th>색상</th>
+						<th>범위(kWh)</th>
+					</tr>
+				</thead>
+				<tbody>
+					{{__row__}}
+				</tbody>
+			</table>
+		`;
+		const rowsArr = [];
+
+		if(legendOpt == 1) { // 등간격
+			layerArr.forEach(layer => {
+				layer.getSource().updateParams({'STYLES' : "황사dgg_grade"});
+			});
+			// 범례 가져와
+			$.ajax({
+				url: "/dggLegend.do",
+				type: "post",
+				dataType: "json",
+				data: {opt : district, div: divNum},
+				global: false, 
+				success: function(data) {
+					//console.log(data);
+					for(let i = 0; i < 5; i++) {
+						let row = `
+							<tr>
+								<td class="{{__color__}}"></td>
+								<td>{{__val__}}</td>
+							</tr>
+						`;
+						let colorCode = i + 1;
+						let rowData = data[i].start.toLocaleString('ko-KR') + " ~ " + data[i].end.toLocaleString('ko-KR');
+						row = row.replace("{{__color__}}", "dggColor"+colorCode);
+						row = row.replace("{{__val__}}", rowData);
+						rowsArr.push(row);
+					}
+					table = table.replace("{{__row__}}", rowsArr.join(''));
+					target.innerHTML = table;
+				},
+				error: function(err) {
+					console.log(err);
+				}
+			});
+		} else if (legendOpt == 2) { // 내추럴 브레이크
+			layerArr.forEach(layer => {
+				layer.getSource().updateParams({'STYLES' : "grade"});
+			});
+			// 범례 가져와
+			$.ajax({
+				url: "/nbLegend.do",
+				type: "post",
+				dataType: "json",
+				data: {opt : district, div: divNum},
+				global: false, 
+				success: function(data) {
+					//console.log(data);
+					for(let i = 0; i < 5; i++) {
+						let row = `
+							<tr>
+								<td class="{{__color__}}"></td>
+								<td>{{__val__}}</td>
+							</tr>
+						`;
+						let colorCode = i + 1;
+						let rowData = data[i].start.toLocaleString('ko-KR') + " ~ " + data[i].end.toLocaleString('ko-KR');
+						row = row.replace("{{__color__}}", "nbColor"+colorCode);
+						row = row.replace("{{__val__}}", rowData);
+						rowsArr.push(row);
+					}
+					table = table.replace("{{__row__}}", rowsArr.join(''));
+					target.innerHTML = table;
+				},
+				error: function(err) {
+					console.log(err);
+				}
 			});
 		}
-	});
+	}
 	
 	// 레이어 검색 ----------------------------------------------------------------------
 	$("#searchBtn").on('click', function() {
@@ -236,6 +336,7 @@ $( document ).ready(function() {
 		
 		let sgg = $("#sgg option:checked").val();
 		let sd = $("#sd option:checked").val();
+		
 		let legendOpt = $('#legend option:checked').val();
 		
 		if (sgg != 0) { // 시군구 셀렉
@@ -254,8 +355,8 @@ $( document ).ready(function() {
 		}
 		
 	});
+	
 
-	// overlay
 	const container = document.getElementById('popup');
 	const content = document.getElementById('popup-content');
 	const closer = document.getElementById('popup-closer');
@@ -275,6 +376,7 @@ $( document ).ready(function() {
 		return false;
 	};
 	
+	
 	// wms GetFeatureInfo -----------------------------------------------------
 	// 클릭한 지점에 Overlay
 	map.on('singleclick', async function(e) { // async 없으면 await 때문에 안됨... (블로그에는 화살표함수로 async 없던데 왤까)
@@ -290,6 +392,8 @@ $( document ).ready(function() {
 			QUERY_LAYERS: 'ljs:c5_gradedbjd', 
 			INFO_FORMAT: 'application/json'
 		});
+		// http://172.30.1.65:8080/geoserver/ljs/wms?service=WMS&SERVICE=WMS&VERSION=1.1.0&REQUEST=GetFeatureInfo&FORMAT=image/png&TRANSPARENT=true&QUERY_LAYERS=ljs:mvdtsgg&LAYERS=ljs:mvdtbjd&BBOX=14142684.721436452,4520180.104672182,14143907.713889016,4521403.097124745&SRS=EPSG:3857&CQL_FILTER=bjdcd LIKE '11230%'&INFO_FORMAT=application/json&X=215&Y=195&WIDTH=256&HEIGHT=256&STYLES=
+		//console.log(url);
 		
 		// GetFeatureInfo URL이 유효할 경우
 		if (url) {
@@ -316,7 +420,7 @@ $( document ).ready(function() {
 						
 						content.innerHTML = '<p style="font-weight: bold">' + feature.get('bjd_nm') + '</p>사용량: <code>' + feature.get('totusage').toLocaleString('ko-KR') + 'kWh</code>';
 						
-						//overlay.setPosition(ol.extent.getCenter(vector.getExtent())); // 오버레이 센터 좌표에 띄우기
+						//overlay.setPosition(ol.extent.getCenter(vector.getExtent()));
 						overlay.setPosition(coordinate);
 					}
 				} else {
@@ -328,6 +432,10 @@ $( document ).ready(function() {
 		map.addOverlay(overlay);
 	});
 	
+	$(document).ajaxStart(function () {
+      console.log("ajax start");
+      loadingToast.show();
+   });
 	
 	// 파일 업로드
 	$("#uploadBtn").on("click", function() {
@@ -365,6 +473,44 @@ $( document ).ready(function() {
 		$('#file').val() = '';
 		
 	});
+   
+   // 통계 -------------------------------------------------------------------
+   function makeTable(district, serverData) {
+	   
+   	  let template = `
+   		  <table class='table table-hover'>
+   		    <thead>
+   		        <tr>
+   		            <th>{{__district__}}별</th>
+   		            <th>소비량(kWh)</th>
+   		        </tr>
+   		    </thead>
+   		    <tbody>
+   		        {{__rows__}}
+   		    </tbody>
+   		</table>
+   	  `;
+   	  template = template.replace('{{__district__}}', district);
+   	  
+   	  const tempArr = [];
+   	  
+   	  for(let i = 0; i < serverData.length; i++) {
+   		  let rowTemplate = `
+	    		<tr>
+   		            <td>{{__district__}}</td>
+   		            <td>{{__usage__}}</td>
+   		        </tr>
+	    	  `;
+	      
+	      let names = district == '시군구' ? serverData[i].sgg_nm : serverData[i].sd_nm;
+	      rowTemplate = rowTemplate.replace('{{__district__}}', names);
+   		  rowTemplate = rowTemplate.replace('{{__usage__}}', serverData[i].totusage.toLocaleString('ko-KR'));
+   		  tempArr.push(rowTemplate);
+   	  }
+   	  
+   	  template = template.replace('{{__rows__}}', tempArr.join(''));
+   	  document.querySelector("#dataTable").innerHTML = template;
+     }
    
    // 통계 검색 버튼
    $("#chartBtn").on("click", function() {
@@ -485,139 +631,9 @@ $( document ).ready(function() {
 	   }
    });
    
-   /* // 범례 테이블 드래그ㅡㅡ
-   $("#legend").draggable({ containment:"#map", scroll: false }); */
+   
+   // 범례 테이블 드래그 ㅡㅡ
+   $("#legend").draggable({ containment:"#map", scroll: false });
    
 	
 });
-</script>
-</head>
-<body>
-	<header>
-		<h3 class="px-3">C5 지도</h3>
-	</header>
-	<div class="container1">
-		<div class="mycontainer">
-		
-		<aside>
-		<div class="menu">
-			<div class="menuLink selectedMenu" id="fileLink">
-				<div class="menuIcon">
-				<i class="fa-solid fa-file-arrow-up"></i>
-				</div>
-				파일
-			</div>
-			<div class="menuLink" id="mapLink">
-				<div class="menuIcon">
-				<i class="fa-solid fa-map"></i>
-				</div>
-				지도
-			</div>
-			<div class="menuLink" id="statsLink">
-				<div class="menuIcon">
-				<i class="fa-solid fa-square-poll-horizontal"></i>
-				</div>
-				통계
-			</div>
-		</div>
-		<div class="sidebar p-2" id="sidebar">
-		<!-- 데이터 삽입 -->
-			<div class="ddWrapper" id="fileSection">
-				<form id="uploadForm">
-					<input type="file" id="file" name="file" class='form-control' accept="text/plain" placeholder="txt 파일 업로드" required>
-					<div class="btnWrapper">
-					<button type="button" id="uploadBtn" class="btn">파일 업로드</button>
-					</div>
-				</form>
-			</div>
-		<!-- 드롭다운 -->
-			<div class="ddWrapper" id="layerDd" style="display:none;">
-				<div id="sdDropdown">
-					<select name="sd" id="sd" class="form-select">
-						<option value="0">시/도 선택</option>
-						<option value="1">전국</option>
-						<c:forEach items="${sdList }" var="sd">
-						<option value="${sd.sd_cd }">${sd.sd_nm }</option>
-						</c:forEach>
-					</select>
-				</div>
-				<div id="sggDropdown">
-					<select name="sgg" id="sgg" class="form-select">
-						<option value="0">시/군/구 선택</option>
-					</select>
-				</div>
-				<div id="legendDropdown">
-					<select name="legend" id="legend" class="form-select">
-						<option value="1">등간격</option>
-						<option value="2">내추럴 브레이크</option>
-					</select>
-				</div>
-				<div class="btnWrapper">
-					<button id="searchBtn" class="btn">지도 검색</button>
-				</div>
-			</div>
-		<!-- 통계 -->
-			<div id="chartDd" class="ddWrapper" style="display:none;">
-				<select id="chartSd" class="form-select">
-					<option value="0">시/도 선택</option>
-					<option value="1">전국</option>
-					<c:forEach items="${sdList }" var="sd">
-					<option value="${sd.sd_cd }">${sd.sd_nm }</option>
-					</c:forEach>
-				</select>
-				<div class="btnWrapper">
-					<button id="chartBtn" class="btn" data-bs-toggle="modal" data-bs-target="#dataModal">통계 검색</button>			
-				</div>
-			</div>
-			</div>
-		</aside>
-		<main class="mainContainer">
-			<!-- popup overlay -->
-			<div id="popup" class="ol-popup">
-		      <a href="#" id="popup-closer" class="ol-popup-closer"></a>
-		      <div id="popup-content"></div>
-		    </div>
-		    
-			<!-- 탄소지도 -->
-			<div id="wrapper">
-				<div id="map" class="map"></div>
-					<!-- 범례 위치 -->
-					<div id="legendDiv" class="rounded legendDiv"></div>
-				
-				<!-- 모달 -->
-				<!-- Modal -->
-				<div class="modal fade" id="dataModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-				  <div class="modal-dialog modal-xl modal-dialog-scrollable">
-				    <div class="modal-content">
-				      <div class="modal-header">
-				        <h5 class="modal-title" id="exampleModalLabel">통계</h5>
-				        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-				      </div>
-				      <div class="modal-body">
-				        <!-- 차트 -->
-						<!--Div that will hold the pie chart-->
-						<div id="chart">
-				   			<div id="chart_div"></div>
-				   			<div id="dataTable"></div>
-						</div>
-				      </div>
-				      <!-- <div class="modal-footer">
-				      </div> -->
-				    </div>
-				  </div>
-				</div>
-				
-			</div>
-		</main>
-		<!-- 토스트 -->
-		<div id="toastBox">
-			<div class="toast1" id="loadingToast"><i class="fa-solid fa-circle-arrow-up"></i> 업로드 진행 중...</div>
-		</div>
-		
-		</div>
-	</div>
-	<!-- <footer>
-	푸터
-	</footer> -->
-</body>
-</html>

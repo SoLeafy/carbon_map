@@ -110,10 +110,10 @@ public class MapController {
 		int result = 0;
 		
 		if(Util.isValidTxtFile(file)) {
-			System.out.println(file.getName());
-			System.out.println(file.getSize());
-			System.out.println(file.getContentType());
-			System.out.println(file.getOriginalFilename());
+			//System.out.println(file.getName());
+			//System.out.println(file.getSize());
+			//System.out.println(file.getContentType());
+			//System.out.println(file.getOriginalFilename());
 			
 			long startTime = System.currentTimeMillis();
 			result = fileService.uploadFile(file);
