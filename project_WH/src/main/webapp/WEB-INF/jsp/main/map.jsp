@@ -370,6 +370,8 @@ $( document ).ready(function() {
    $("#chartBtn").on("click", function() {
 	   let chartOpt = $("#chartSd").val();
 	   document.querySelector("#dataTable").innerHTML = '';
+	   let target = document.querySelector("#legendDiv");
+		target.innerHTML = '';
 	   
 	   if (Number(chartOpt) === 0) {
 		   return false; // 그냥해봄
